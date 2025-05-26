@@ -1,0 +1,52 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-link: false
+    css: styles.css
+    page-layout: full
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+```
+
+::: {.hero}
+## MVN: Multivariate Normality in a Single Function  
+A one-stop R package for testing, diagnostics, and visualization of multivariate normality.  
+:::
+
+## Minimal Working Example
+
+```{r}
+# Load the package:
+library(MVN)
+```
+
+```{r}
+# First two columns of iris as an example
+df <- iris[1:50,1:2]
+```
+
+```{r}
+# Runs the Henze–Zirkler test by default
+result <- mvn(data = df)
+```
+
+```{r, results='hold'}
+summary(result, select = "mvn")
+```
+
+
+---
+
+## What’s Next?
+
+Dive into **Tutorials** to learn step by step, or check out the **[Reference](reference.qmd)** for detailed documentation of all functions.

@@ -1,0 +1,42 @@
+---
+title: ""
+format:
+  html:
+    toc: false
+    code-link: false
+    css: styles.css
+    page-layout: full
+---
+
+::: {.hero}
+![](mvn_sticker.png){width="100px" style="float:right; margin-left: -10px;"}
+
+### Multivariate Normality Made Easy
+
+Welcome to **MVN**, an R package for testing and visualizing multivariate normality using powerful and intuitive diagnostics.
+:::
+
+::: {.callout-tip}
+**Why use MVN?**
+
+- 📊 Test multivariate normality with robust statistical methods  
+- 🎯 Built-in support for visual diagnostics (QQ plot, density, 3D/contour)  
+- 🧪 Outlier detection tools included  
+- 💡 Easy to integrate with any multivariate pipeline  
+:::
+
+---
+
+## Installation
+
+Install **MVN** from CRAN with:
+
+```r
+install.packages("MVN")
+```
+
+Or the development version:
+
+```r
+remotes::install_github("selcukorkmaz/MVN")
+```

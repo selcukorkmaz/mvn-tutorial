@@ -1,0 +1,87 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: true
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+library(MVN)
+
+# Example data: two variables from iris (Part 1 & 2)
+df <- iris[1:50, 1:2]
+```
+
+## Multivariate Outlier Detection  
+
+Before interpreting your multivariate normality tests, it’s important to check for and understand any influential outliers. In this section, we’ll:
+
+1. **Detect** multivariate outliers using robust Mahalanobis distances.  
+2. **Summarize** flagged observations via the summary method.  
+3. **Visualize** outliers in Q–Q and scatter plots.
+
+---
+
+### Example Data {.unnumbered .unlisted}
+
+```{r}
+# Load the package:
+library(MVN)
+```
+
+We’ll use two numeric variables from the built-in `iris` dataset:
+
+```{r}
+df <- iris[1:50, 1:2]
+head(df)
+```
+
+## 1. Detecting Outliers
+
+The `mvn()` function can automatically flag multivariate outliers using methods such as the adjusted quantile approach (`"adj"`) or a fixed quantile cutoff. Specify via `multivariate_outlier_method`:
+
+```{r}
+out_res <- mvn(
+  data = df,
+  mvn_test = "hz",
+  multivariate_outlier_method = "quan"
+)
+```
+This computes robust Mahalanobis distances and flags observations above the chi-square cutoff at the specified `alpha` (default 0.05).
+
+---
+
+## 2. Summarizing Outliers
+
+Use the `summary()` function with `select = "outliers"` to list flagged observations:
+
+```{r}
+summary(out_res, select = "outliers")
+```
+The output shows each outlier’s observation index and Mahalanobis distance, helping you decide whether to inspect or remove these points.
+
+---
+
+## 3. Visualizing Outliers
+
+```{r}
+plot(out_res, diagnostic = "outlier")
+```
+This Q–Q plot highlights points deviating from the theoretical chi-square line.
+
+---
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. *The R Journal*. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf

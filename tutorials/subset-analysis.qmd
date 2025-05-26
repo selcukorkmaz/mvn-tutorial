@@ -1,0 +1,82 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: true
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+```
+
+## Subset Analysis  
+Subset analysis lets you assess multivariate normality separately in each level of a factor. This is useful when data structure or experimental design requires group-wise validation.
+
+---
+
+
+## Example Data
+
+```{r}
+library(MVN)
+
+# Remove the 4th column, keep Species as grouping
+iris_df <- iris[-4]
+head(iris_df)
+```
+
+## 1. Running MVN by Group
+
+Specify the `subset` argument in `mvn()`:
+
+```{r}
+# Henze–Zirkler test by species
+subset_res <- mvn(
+  data       = iris_df,
+  subset     = "Species",
+  mvn_test   = "hz"
+)
+```
+
+## 2. Viewing Group-Specific Results
+
+Extract multivariate normality for each group:
+
+```{r}
+summary(subset_res, select = "mvn")
+```
+
+
+All species groups exhibit multivariate normality (p > 0.05). Group-wise analysis ensures that assumptions hold within each category.
+
+---
+
+## 3. Group-Wise Diagnostics
+
+You can also generate diagnostic plots for each subset by `subset_res` object to `plot()`:
+
+```{r}
+# Mahalanobis Q–Q plots for each species
+plot(
+  subset_res,
+  diagnostic = "multivariate",
+  type       = "qq"
+)
+```
+
+
+---
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. *The R Journal*. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf

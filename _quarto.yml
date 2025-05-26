@@ -1,0 +1,37 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "MVN"
+  navbar:
+    left:
+      - text: "Get Started"
+        href: get-started.qmd
+      - text: "Tutorials"
+        menu:
+          - text: Multivariate Normality Tests
+            file: tutorials/mvn-tests.qmd
+          - text: Univariate Normality & Descriptive Statistics
+            file: tutorials/univariate-normality-descriptives.qmd
+          - text: Multivariate Outlier Detection
+            file: tutorials/multivariate-outlier-detection.qmd
+          - text: Diagnostic Visualizations
+            file: tutorials/diagnostic-visualizations.qmd
+          - text: Data Transformation Techniques
+            file: tutorials/data-transformation-techniques.qmd
+          - text: Subset Analysis
+            file: tutorials/subset-analysis.qmd
+      - text: "Reference"
+        href: reference.qmd
+
+  page-footer:
+    left: "© 2025 MVN package"
+    right: "Built with Quarto"
+  favicon: mvn_sticker.png
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: false

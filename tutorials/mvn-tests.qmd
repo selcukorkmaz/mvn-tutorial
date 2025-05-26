@@ -1,0 +1,108 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: 4
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+library(MVN)
+library(energy)
+```
+
+##  Multivariate Normality Tests  
+
+Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis.  In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz *et al.* (2014).
+
+---
+
+### Example Data {.unnumbered .unlisted}
+
+We’ll use two numeric variables from the built-in `iris` dataset:
+
+```{r}
+df <- iris[1:50, 1:2]
+head(df)
+```
+
+---
+
+### Henze–Zirkler Test
+
+The Henze–Zirkler test is recommended for its balanced control of Type I error and good power properties under moderate sample sizes; a p-value below 0.05 suggests departure from multivariate normality based on a log-normalized distance metric.
+
+```{r}
+hz_result <- mvn(data = df, mvn_test = "hz")
+summary(hz_result, select = "mvn")
+```
+
+---
+
+
+### Royston Test
+
+The Royston test aggregates transformed univariate Shapiro–Wilk statistics into a joint chi‐square test and is noted for reliable performance in small-to-moderate samples.
+
+```{r}
+ro_result <- mvn(data = df, mvn_test = "royston")
+summary(ro_result, select = "mvn")
+```
+
+---
+
+### Mardia Test
+
+Mardia’s skewness and kurtosis measures provide insight into specific aspects of distributional shape; examining both skewness and kurtosis p-values helps diagnose the nature of non-normality, though neither may alone signal departure when sample size is limited.
+
+```{r}
+mardia_result <- mvn(data = df, mvn_test = "mardia")
+summary(mardia_result, select = "mvn")
+```
+
+---
+
+
+### Doornik–Hansen Test
+
+The Doornik–Hansen approach applies transformations to approximate a chi‐square distribution of combined moment statistics.
+
+```{r}
+dh_result <- mvn(data = df, mvn_test = "doornik_hansen")
+summary(dh_result, select = "mvn")
+```
+
+---
+
+### Energy Test
+
+Based on a nonparametric energy distance metric, this test is sensitive to any general deviation from normality. It provides a robust alternative especially when data exhibit heavy tails or multimodality.
+
+```{r}
+energy_result <- mvn(data = df, mvn_test = "energy")
+summary(energy_result, select = "mvn")
+```
+
+---
+
+
+::: {.callout-tip}
+No single test is universally best; Korkmaz *et al.* (2014) recommend combining multiple numerical tests with graphical diagnostics to make a more reliable decision on multivariate normality.
+:::
+
+---
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. 
+URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf

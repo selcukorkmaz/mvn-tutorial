@@ -1,0 +1,297 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: 4
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+## Function Reference
+
+### `mvn()`
+
+**Purpose:** Conduct multivariate normality testing, descriptive statistics, outlier detection, and transformations in one wrapper.
+
+**Usage:**
+
+```r
+mvn(
+  data,
+  subset = NULL,
+  mvn_test = "hz",
+  use_population = TRUE,
+  tol = 1e-25,
+  alpha = 0.05,
+  scale = FALSE,
+  descriptives = TRUE,
+  transform = "none",
+  R = 1000,
+  univariate_test = "AD",
+  multivariate_outlier_method = "none",
+  box_cox_transform = FALSE,
+  box_cox_transform_type = "optimal",
+  show_new_data = FALSE,
+  tidy = TRUE
+)
+```
+
+- **data**: Data frame or matrix of numeric variables.
+- **subset**: *(Optional)* Grouping variable name for subset analyses.
+- **mvn_test**: One of `"hz"`, `"royston"`, `"mardia"`, `"doornik_hansen"`, `"energy"`.
+- **use_population**: Logical; if `TRUE`, use population covariance matrix (default is `TRUE`).
+- **tol**: Numeric tolerance for matrix inversion via `solve()` (default `1e-25`).
+- **alpha**: Significance level for ARW outlier cutoff if `multivariate_outlier_method = "adj"` (default `0.05`).
+- **scale**: Logical; if `TRUE`, standardizes the variables before analysis.
+- **descriptives**: Logical; compute descriptive statistics if `TRUE` (default `TRUE`).
+- **transform**: One of `"none"`, `"log"`, `"sqrt"`, or `"square"`. Applies marginal transformation before analysis.
+- **R**: Number of bootstrap replicates for the `"energy"` test. Default is `1000`.
+- **univariate_test**: One of `"SW"`, `"CVM"`, `"Lillie"`, `"SF"`, `"AD"`. Default is `"AD"`.
+- **multivariate_outlier_method**: One of `"none"`, `"quan"`, `"adj"`.
+- **box_cox_transform**: Logical; if `TRUE`, applies Box-Cox transformation (default `FALSE`).
+- **box_cox_transform_type**: Either `"optimal"` or `"rounded"` lambda for Box-Cox (default `"optimal"`).
+- **show_new_data**: Logical; if `TRUE`, include data with outliers removed (default `FALSE`).
+- **tidy**: Logical; if `TRUE`, returns tidy-format results with a `Group` column (default `TRUE`).
+
+---
+
+### `summary.mvn()`
+
+**Purpose:** Provide a structured summary of results from an object of class `mvn`, including multivariate and univariate test results, descriptive statistics, and outliers (if applicable).
+
+**Usage:**
+
+```r
+summary(object, select = c("mvn", "univariate", "descriptives", "outliers", "new_data"))
+```
+
+- **object**: An object of class `mvn`, as returned by the `mvn()` function.
+- **select**: Character vector specifying which components to display. Must include one or more of `"mvn"`, `"univariate"`, `"descriptives"`, `"outliers"`, or `"new_data"`. Defaults to all.
+- **...**: Additional arguments (currently unused).
+
+---
+
+### `plot.mvn()`
+
+**Purpose:** Generate diagnostic plots for objects of class `mvn`, including multivariate Q-Q plots, kernel density plots (3D or contour), univariate plots (Q-Q, histograms, boxplots), and multivariate outlier plots.
+
+**Usage:**
+
+```r
+plot(x, diagnostic = c("multivariate", "univariate", "outlier"), type = NULL, interactive = FALSE)
+```
+
+- **x**: An object of class `mvn`, as returned by the `mvn()` function.
+- **...**: Additional arguments passed to internal plotting functions:
+  - `diagnostic`: Type of diagnostic plot to display — one of `"multivariate"`, `"univariate"`, `"outlier"`.
+  - `type`: Specific plot type (e.g., `"qq"`, `"boxplot"`, `"persp"`).
+  - `interactive`: Logical; if `TRUE`, uses interactive plotting with `plotly` (only for univariate plots).
+
+---
+
+
+### `hz()`
+
+**Purpose:** Perform Henze-Zirkler's test for multivariate normality using a log-normal approximation of the test statistic.
+
+**Usage:**
+
+```r
+hz(data, use_population = TRUE, tol = 1e-25)
+```
+
+- **data**: A numeric data frame or matrix where rows are observations and columns are variables.
+- **use_population**: Logical; if `TRUE`, uses population covariance matrix. Default is `TRUE`.
+- **tol**: Tolerance value for matrix inversion (`solve()`); default is `1e-25`.
+
+---
+
+
+### `mardia()`
+
+**Purpose:** Perform Mardia’s skewness and kurtosis tests for assessing multivariate normality.
+
+**Usage:**
+  
+```r
+mardia(data, use_population = TRUE, tol = 1e-25)
+```
+
+- **data**: A numeric matrix or data frame with observations in rows and variables in columns.
+- **use_population**: Logical; if `TRUE`, uses population covariance matrix. Default is `TRUE`.
+- **tol**: Tolerance value used during matrix inversion with `solve()`. Default is `1e-25`.
+
+---
+
+
+### `royston()`
+  
+**Purpose:** Perform Royston’s multivariate normality test by combining univariate Shapiro-Wilk or Shapiro-Francia statistics and adjusting for variable correlations.
+
+**Usage:**
+  
+```r
+royston(data, tol = 1e-25)
+```
+
+- **data**: A numeric matrix or data frame with observations in rows and variables in columns.
+- **tol**: Numeric tolerance used for matrix inversion via `solve()`. Default is `1e-25`.
+
+
+---
+
+### `doornik_hansen()`
+  
+**Purpose:** Perform the Doornik-Hansen omnibus test for multivariate normality using transformed data to combine skewness and kurtosis measures.
+
+**Usage:**
+  
+```r
+doornik_hansen(data)
+```
+
+- **data**: A numeric matrix or data frame with observations in rows and variables in columns.
+
+---
+
+### `energy()`
+  
+**Purpose:** Perform the E-statistic test (Energy test) for multivariate normality using parametric bootstrap to estimate the null distribution.
+
+**Usage:**
+  
+```r
+energy(data, R = 1000, seed = 123)
+```
+
+- **data**: A numeric matrix or data frame with observations in rows and variables in columns.
+- **R**: Integer; number of bootstrap replicates. Default is `1000`.
+- **seed**: Optional integer for setting random seed to ensure reproducibility.
+
+---
+
+  
+### `mv_outlier()`
+  
+**Purpose:** Identify multivariate outliers using robust Mahalanobis distances with either a quantile-based or ARW-adjusted cutoff. Optionally generates a Q-Q plot.
+
+**Usage:**
+  
+```r
+mv_outlier(
+  data,
+  outlier = TRUE,
+  qqplot = TRUE,
+  alpha = 0.05,
+  method = "quan",
+  label = TRUE,
+  title = "Chi-Square Q-Q Plot"
+)
+```
+
+- **data**: A numeric matrix or data frame with rows as observations and at least two numeric columns.
+- **outlier**: Logical; if `TRUE`, includes Mahalanobis distances and outlier flags in the output. Default is `TRUE`.
+- **qqplot**: Logical; if `TRUE`, generates a chi-square Q-Q plot for visualizing outliers. Default is `TRUE`.
+- **alpha**: Numeric; significance level used for ARW-adjusted cutoff. Default is `0.05`.
+- **method**: Outlier detection method. Must be either `"quan"` or `"adj"`. Default is `"quan"`.
+- **label**: Logical; if `TRUE` and `qqplot = TRUE`, labels outliers in the plot. Default is `TRUE`.
+- **title**: Character string for plot title. Default is `"Chi-Square Q-Q Plot"`.
+
+
+---
+
+### `multivariate_diagnostic_plot()`
+  
+**Purpose:** Generate Mahalanobis Q-Q plots or kernel density visualizations for two numeric variables to assess multivariate normality or bivariate distribution shape.
+
+**Usage:**
+  
+```r
+multivariate_diagnostic_plot(data, type = "qq", tol = 1e-25, use_population = TRUE)
+```
+
+- **data**: A numeric vector, matrix, or data frame. Must contain exactly two numeric variables. Non-numeric columns are dropped; incomplete rows are removed.
+- **type**: One of `"qq"`, `"persp"`, or `"contour"`. Default is `"qq"`.
+- `"qq"`: Mahalanobis Q-Q plot
+- `"persp"`: 3D KDE surface (interactive)
+- `"contour"`: 2D KDE contour (interactive)
+- **tol**: Tolerance value used during matrix inversion. Default is `1e-25`.
+- **use_population**: Logical; if `TRUE`, uses population covariance matrix. Default is `TRUE`.
+
+
+---
+
+
+### `univariate_diagnostic_plot()`
+  
+**Purpose:** Generate diagnostic plots for univariate or multivariate numeric data, including Q-Q plots, histograms with density overlays, boxplots, and scatterplot matrices.
+
+**Usage:**
+  
+```r
+univariate_diagnostic_plot(data, type = "qq", title = NULL, interactive = FALSE)
+```
+
+- **data**: A numeric vector, matrix, or data frame with observations in rows and variables in columns.
+- **type**: Character string specifying the type of plot to create. One of:
+  - `"qq"`: Q-Q plots
+- `"histogram"`: Histograms with density curves
+- `"boxplot"`: Boxplots
+- `"scatter"`: Scatterplot matrix
+- **title**: Optional character string specifying a custom plot title.
+- **interactive**: Logical; if `TRUE`, returns an interactive `plotly` plot.
+
+---
+
+### `test_univariate_normality()`
+  
+**Purpose:** Perform a univariate normality test on each numeric variable in a vector, matrix, or data frame.
+
+**Usage:**
+  
+```r
+test_univariate_normality(data, test = "SW")
+```
+
+- **data**: A numeric vector, matrix, or data frame. Non-numeric columns are removed with a warning.
+- **test**: Character string specifying the test to apply. Options include:
+  - `"SW"`: Shapiro-Wilk
+- `"SF"`: Shapiro-Francia
+- `"AD"`: Anderson-Darling
+- `"CVM"`: Cramér-von Mises
+- `"Lillie"`: Lilliefors
+---
+
+### `descriptives()`
+  
+**Purpose:** Compute descriptive statistics for each numeric variable in a data frame, matrix, or vector.
+
+**Usage:**
+  
+```r
+descriptives(data)
+```
+
+- **data**: A numeric vector, matrix, or data frame with observations in rows and variables in columns.
+
+---
+
+  
+### `box_cox_transform()`
+  
+**Purpose:** Apply Box-Cox power transformation to each numeric variable in the input data using either estimated or rounded lambda values.
+
+**Usage:**
+  
+```r
+box_cox_transform(data, type = "optimal")
+```
+
+- **data**: A numeric vector, matrix, or data frame with observations in rows and variables in columns.
+- **type**: Character; either `"optimal"` (use estimated lambda) or `"rounded"` (use rounded lambda). Default is `"optimal"`.
+
+---
+  

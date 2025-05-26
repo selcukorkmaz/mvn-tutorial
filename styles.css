@@ -1,0 +1,21 @@
+/* css styles */
+
+.hero {
+  background: #f9f9f9;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-radius: 20px;
+  box-shadow: 0 0 10px #ddd;
+}
+
+.callout-tip {
+  background-color: #f9f9f9;
+  padding: 1em;
+  border-radius: 15px;
+  margin-bottom: 1em;
+  border-left: 5px solid #42a5f5;
+}
+
+img {
+  border-radius: 12px;
+}

@@ -1,0 +1,275 @@
+[
+  {
+    "objectID": "tutorials/data-transformation-techniques.html",
+    "href": "tutorials/data-transformation-techniques.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the transform argument, as well as optimal Box–Cox transformation."
+  },
+  {
+    "objectID": "tutorials/data-transformation-techniques.html#data-transformation-techniques",
+    "href": "tutorials/data-transformation-techniques.html#data-transformation-techniques",
+    "title": "MVN",
+    "section": "",
+    "text": "Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the transform argument, as well as optimal Box–Cox transformation."
+  },
+  {
+    "objectID": "tutorials/data-transformation-techniques.html#example-data-and-baseline-assessment",
+    "href": "tutorials/data-transformation-techniques.html#example-data-and-baseline-assessment",
+    "title": "MVN",
+    "section": "Example Data and Baseline Assessment",
+    "text": "Example Data and Baseline Assessment\n\n# Load package and example data\nlibrary(MVN)\ndf &lt;- iris[1:50, 1:4]\n\n# Baseline Henze–Zirkler test without transformation\nresult &lt;- mvn(data = df, mvn_test = \"hz\")\nsummary(result, select = \"mvn\")\n\n           Test Statistic p.value          MVN\n1 Henze-Zirkler     0.949    0.05 ✗ Not normal\n\n\nThe untransformed data are marginally on the threshold of normality (p = 0.05), indicating potential departure from multivariate normality."
+  },
+  {
+    "objectID": "tutorials/data-transformation-techniques.html#basic-transformations",
+    "href": "tutorials/data-transformation-techniques.html#basic-transformations",
+    "title": "MVN",
+    "section": "1. Basic Transformations",
+    "text": "1. Basic Transformations\nUse the transform parameter in mvn() to apply:\n\n“log” (natural log)\n“sqrt” (square root)\n“square” (power of 2)\n\n\n# Log-transform\nres_log &lt;- mvn(data = df, mvn_test = \"hz\", transform = \"log\")\nsummary(res_log, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.789   0.379 ✓ Normal\n\n\nThe log transformation improves normality (p = 0.379), suggesting data are now consistent with a multivariate normal distribution.\n\n# Square-root transform\nres_sqrt &lt;- mvn(data = df, mvn_test = \"hz\", transform = \"sqrt\")\nsummary(res_sqrt, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.829   0.253 ✓ Normal\n\n\nThe square-root transformation also corrects skewness, producing p = 0.253 and acceptance of normality.\n\n# Square transform\nres_sq &lt;- mvn(data = df, mvn_test = \"hz\", transform = \"square\")\nsummary(res_sq, select = \"mvn\")\n\n           Test Statistic p.value          MVN\n1 Henze-Zirkler     1.278  &lt;0.001 ✗ Not normal\n\n\nSquaring amplifies deviations and results in clear non-normality (p &lt; 0.001), so this transform is not recommended."
+  },
+  {
+    "objectID": "tutorials/data-transformation-techniques.html#boxcox-transformation",
+    "href": "tutorials/data-transformation-techniques.html#boxcox-transformation",
+    "title": "MVN",
+    "section": "2. Box–Cox Transformation",
+    "text": "2. Box–Cox Transformation\nEnable Box–Cox with optimal lambda estimation using:\n\nres_bc_sum &lt;- mvn(\n  data              = df,\n  mvn_test          = \"hz\",\n  box_cox_transform = TRUE\n)\nsummary(res_bc_sum, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.803   0.332 ✓ Normal\n\n\nThe Box–Cox transformation yields p = 0.332, indicating a good fit to multivariate normality with data-driven lambda values applied.\nHere are the optimal lambda values used for transformation:\n\nres_bc_sum$box_cox_lambda\n\nSepal.Length  Sepal.Width Petal.Length  Petal.Width \n  0.41655582   1.27294127   0.72864401   0.02443928"
+  },
+  {
+    "objectID": "tutorials/data-transformation-techniques.html#references",
+    "href": "tutorials/data-transformation-techniques.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  },
+  {
+    "objectID": "tutorials/univariate-normality-descriptives.html",
+    "href": "tutorials/univariate-normality-descriptives.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Before proceeding with the joint multivariate analyses, it is essential to confirm that each variable separately approximates normality and to obtain descriptive insights such as mean, variance, skewness, and kurtosis. In this section, we’ll first run univariate Anderson–Darling tests on each variable, then calculate key summary statistics.\n\n\n\n\n# Load the package:\nlibrary(MVN)\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9\n\n\n\n\n\n\n\n# Load MVN\nlibrary(MVN)\n\n# Example data\ndf &lt;- iris[1:50, 1:2]\n\nUse the existing mvn object (e.g., from the Henze–Zirkler test) to pull out Anderson–Darling statistics for each variable:\n\n# Run mvn (if not already run)\nhz_result &lt;- mvn(data = df, mvn_test = \"hz\", univariate_test = \"AD\")\n\n# Extract univariate Anderson–Darling results\nsummary(hz_result, select = \"uni\")\n\n              Test     Variable Statistic p.value Normality\n1 Anderson-Darling Sepal.Length     0.408   0.335  ✓ Normal\n2 Anderson-Darling  Sepal.Width     0.491   0.210  ✓ Normal\n\n\nSepal.Length\n- Statistic = 0.408\n- p-value = 0.335 → p &gt; 0.05 → Normality assumption is not violated\nSepal.Width\n- Statistic = 0.491\n- p-value = 0.210 → p &gt; 0.05 → Normality assumption is not violated\nBoth variables show no significant deviation from a normal distribution based on the Anderson–Darling test.\n\n\n\n\n\n\n\nTip\n\n\n\nIn the mvn() function, the default univariate normality test is “AD” (Anderson–Darling). However, you can choose alternative tests such as “SW” (Shapiro–Wilk), “SF” (Shapiro–Francia), “CVM” (Cramér–von Mises), or “Lillie” (Lilliefors).\n\n\n\n\n\n\nCompute numerical summaries—mean, standard deviation, median, minimum, maximum, quartiles, skewness, and kurtosis—for each variable:\n\n# Descriptive statistics for each variable\nsummary(hz_result, select = \"descriptive\")\n\n      Variable  n  Mean Std.Dev Median Min Max 25th  75th  Skew Kurtosis\n1 Sepal.Length 50 5.006   0.352    5.0 4.3 5.8  4.8 5.200 0.116    2.654\n2  Sepal.Width 50 3.428   0.379    3.4 2.3 4.4  3.2 3.675 0.040    3.744"
+  },
+  {
+    "objectID": "tutorials/univariate-normality-descriptives.html#univariate-normality-descriptive-statistics",
+    "href": "tutorials/univariate-normality-descriptives.html#univariate-normality-descriptive-statistics",
+    "title": "MVN",
+    "section": "",
+    "text": "Before proceeding with the joint multivariate analyses, it is essential to confirm that each variable separately approximates normality and to obtain descriptive insights such as mean, variance, skewness, and kurtosis. In this section, we’ll first run univariate Anderson–Darling tests on each variable, then calculate key summary statistics.\n\n\n\n\n# Load the package:\nlibrary(MVN)\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9\n\n\n\n\n\n\n\n# Load MVN\nlibrary(MVN)\n\n# Example data\ndf &lt;- iris[1:50, 1:2]\n\nUse the existing mvn object (e.g., from the Henze–Zirkler test) to pull out Anderson–Darling statistics for each variable:\n\n# Run mvn (if not already run)\nhz_result &lt;- mvn(data = df, mvn_test = \"hz\", univariate_test = \"AD\")\n\n# Extract univariate Anderson–Darling results\nsummary(hz_result, select = \"uni\")\n\n              Test     Variable Statistic p.value Normality\n1 Anderson-Darling Sepal.Length     0.408   0.335  ✓ Normal\n2 Anderson-Darling  Sepal.Width     0.491   0.210  ✓ Normal\n\n\nSepal.Length\n- Statistic = 0.408\n- p-value = 0.335 → p &gt; 0.05 → Normality assumption is not violated\nSepal.Width\n- Statistic = 0.491\n- p-value = 0.210 → p &gt; 0.05 → Normality assumption is not violated\nBoth variables show no significant deviation from a normal distribution based on the Anderson–Darling test.\n\n\n\n\n\n\n\nTip\n\n\n\nIn the mvn() function, the default univariate normality test is “AD” (Anderson–Darling). However, you can choose alternative tests such as “SW” (Shapiro–Wilk), “SF” (Shapiro–Francia), “CVM” (Cramér–von Mises), or “Lillie” (Lilliefors).\n\n\n\n\n\n\nCompute numerical summaries—mean, standard deviation, median, minimum, maximum, quartiles, skewness, and kurtosis—for each variable:\n\n# Descriptive statistics for each variable\nsummary(hz_result, select = \"descriptive\")\n\n      Variable  n  Mean Std.Dev Median Min Max 25th  75th  Skew Kurtosis\n1 Sepal.Length 50 5.006   0.352    5.0 4.3 5.8  4.8 5.200 0.116    2.654\n2  Sepal.Width 50 3.428   0.379    3.4 2.3 4.4  3.2 3.675 0.040    3.744"
+  },
+  {
+    "objectID": "tutorials/univariate-normality-descriptives.html#references",
+    "href": "tutorials/univariate-normality-descriptives.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html",
+    "href": "tutorials/multivariate-outlier-detection.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Before interpreting your multivariate normality tests, it’s important to check for and understand any influential outliers. In this section, we’ll:\n\nDetect multivariate outliers using robust Mahalanobis distances.\n\nSummarize flagged observations via the summary method.\n\nVisualize outliers in Q–Q and scatter plots.\n\n\n\n\n\n# Load the package:\nlibrary(MVN)\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9"
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html#multivariate-outlier-detection",
+    "href": "tutorials/multivariate-outlier-detection.html#multivariate-outlier-detection",
+    "title": "MVN",
+    "section": "",
+    "text": "Before interpreting your multivariate normality tests, it’s important to check for and understand any influential outliers. In this section, we’ll:\n\nDetect multivariate outliers using robust Mahalanobis distances.\n\nSummarize flagged observations via the summary method.\n\nVisualize outliers in Q–Q and scatter plots.\n\n\n\n\n\n# Load the package:\nlibrary(MVN)\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9"
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html#detecting-outliers",
+    "href": "tutorials/multivariate-outlier-detection.html#detecting-outliers",
+    "title": "MVN",
+    "section": "1. Detecting Outliers",
+    "text": "1. Detecting Outliers\nThe mvn() function can automatically flag multivariate outliers using methods such as the adjusted quantile approach (\"adj\") or a fixed quantile cutoff. Specify via multivariate_outlier_method:\n\nout_res &lt;- mvn(\n  data = df,\n  mvn_test = \"hz\",\n  multivariate_outlier_method = \"quan\"\n)\n\nThis computes robust Mahalanobis distances and flags observations above the chi-square cutoff at the specified alpha (default 0.05)."
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html#summarizing-outliers",
+    "href": "tutorials/multivariate-outlier-detection.html#summarizing-outliers",
+    "title": "MVN",
+    "section": "2. Summarizing Outliers",
+    "text": "2. Summarizing Outliers\nUse the summary() function with select = \"outliers\" to list flagged observations:\n\nsummary(out_res, select = \"outliers\")\n\n  Observation Mahalanobis.Distance\n1          15               10.700\n2          42               10.263\n3          14                9.675\n4          19                9.174\n5          16                9.076\n6          23                8.742\n7          43                8.710\n\n\nThe output shows each outlier’s observation index and Mahalanobis distance, helping you decide whether to inspect or remove these points."
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html#visualizing-outliers",
+    "href": "tutorials/multivariate-outlier-detection.html#visualizing-outliers",
+    "title": "MVN",
+    "section": "3. Visualizing Outliers",
+    "text": "3. Visualizing Outliers\n\nplot(out_res, diagnostic = \"outlier\")\n\n\n\n\n\n\n\n\nThis Q–Q plot highlights points deviating from the theoretical chi-square line."
+  },
+  {
+    "objectID": "tutorials/multivariate-outlier-detection.html#references",
+    "href": "tutorials/multivariate-outlier-detection.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Welcome to MVN, an R package for testing and visualizing multivariate normality using powerful and intuitive diagnostics."
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "MVN",
+    "section": "Installation",
+    "text": "Installation\nInstall MVN from CRAN with:\ninstall.packages(\"MVN\")\nOr the development version:\nremotes::install_github(\"selcukorkmaz/MVN\")"
+  },
+  {
+    "objectID": "get-started.html",
+    "href": "get-started.html",
+    "title": "MVN",
+    "section": "",
+    "text": "A one-stop R package for testing, diagnostics, and visualization of multivariate normality."
+  },
+  {
+    "objectID": "get-started.html#mvn-multivariate-normality-in-a-single-function",
+    "href": "get-started.html#mvn-multivariate-normality-in-a-single-function",
+    "title": "MVN",
+    "section": "",
+    "text": "A one-stop R package for testing, diagnostics, and visualization of multivariate normality."
+  },
+  {
+    "objectID": "get-started.html#minimal-working-example",
+    "href": "get-started.html#minimal-working-example",
+    "title": "MVN",
+    "section": "Minimal Working Example",
+    "text": "Minimal Working Example\n\n# Load the package:\nlibrary(MVN)\n\n\n# First two columns of iris as an example\ndf &lt;- iris[1:50,1:2]\n\n\n# Runs the Henze–Zirkler test by default\nresult &lt;- mvn(data = df)\n\n\nsummary(result, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.286   0.915 ✓ Normal"
+  },
+  {
+    "objectID": "get-started.html#whats-next",
+    "href": "get-started.html#whats-next",
+    "title": "MVN",
+    "section": "What’s Next?",
+    "text": "What’s Next?\nDive into Tutorials to learn step by step, or check out the Reference for detailed documentation of all functions."
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Purpose: Conduct multivariate normality testing, descriptive statistics, outlier detection, and transformations in one wrapper.\nUsage:\nmvn(\n  data,\n  subset = NULL,\n  mvn_test = \"hz\",\n  use_population = TRUE,\n  tol = 1e-25,\n  alpha = 0.05,\n  scale = FALSE,\n  descriptives = TRUE,\n  transform = \"none\",\n  R = 1000,\n  univariate_test = \"AD\",\n  multivariate_outlier_method = \"none\",\n  box_cox_transform = FALSE,\n  box_cox_transform_type = \"optimal\",\n  show_new_data = FALSE,\n  tidy = TRUE\n)\n\ndata: Data frame or matrix of numeric variables.\nsubset: (Optional) Grouping variable name for subset analyses.\nmvn_test: One of \"hz\", \"royston\", \"mardia\", \"doornik_hansen\", \"energy\".\nuse_population: Logical; if TRUE, use population covariance matrix (default is TRUE).\ntol: Numeric tolerance for matrix inversion via solve() (default 1e-25).\nalpha: Significance level for ARW outlier cutoff if multivariate_outlier_method = \"adj\" (default 0.05).\nscale: Logical; if TRUE, standardizes the variables before analysis.\ndescriptives: Logical; compute descriptive statistics if TRUE (default TRUE).\ntransform: One of \"none\", \"log\", \"sqrt\", or \"square\". Applies marginal transformation before analysis.\nR: Number of bootstrap replicates for the \"energy\" test. Default is 1000.\nunivariate_test: One of \"SW\", \"CVM\", \"Lillie\", \"SF\", \"AD\". Default is \"AD\".\nmultivariate_outlier_method: One of \"none\", \"quan\", \"adj\".\nbox_cox_transform: Logical; if TRUE, applies Box-Cox transformation (default FALSE).\nbox_cox_transform_type: Either \"optimal\" or \"rounded\" lambda for Box-Cox (default \"optimal\").\nshow_new_data: Logical; if TRUE, include data with outliers removed (default FALSE).\ntidy: Logical; if TRUE, returns tidy-format results with a Group column (default TRUE).\n\n\n\n\n\nPurpose: Provide a structured summary of results from an object of class mvn, including multivariate and univariate test results, descriptive statistics, and outliers (if applicable).\nUsage:\nsummary(object, select = c(\"mvn\", \"univariate\", \"descriptives\", \"outliers\", \"new_data\"))\n\nobject: An object of class mvn, as returned by the mvn() function.\nselect: Character vector specifying which components to display. Must include one or more of \"mvn\", \"univariate\", \"descriptives\", \"outliers\", or \"new_data\". Defaults to all.\n…: Additional arguments (currently unused).\n\n\n\n\n\nPurpose: Generate diagnostic plots for objects of class mvn, including multivariate Q-Q plots, kernel density plots (3D or contour), univariate plots (Q-Q, histograms, boxplots), and multivariate outlier plots.\nUsage:\nplot(x, diagnostic = c(\"multivariate\", \"univariate\", \"outlier\"), type = NULL, interactive = FALSE)\n\nx: An object of class mvn, as returned by the mvn() function.\n…: Additional arguments passed to internal plotting functions:\n\ndiagnostic: Type of diagnostic plot to display — one of \"multivariate\", \"univariate\", \"outlier\".\ntype: Specific plot type (e.g., \"qq\", \"boxplot\", \"persp\").\ninteractive: Logical; if TRUE, uses interactive plotting with plotly (only for univariate plots).\n\n\n\n\n\n\nPurpose: Perform Henze-Zirkler’s test for multivariate normality using a log-normal approximation of the test statistic.\nUsage:\nhz(data, use_population = TRUE, tol = 1e-25)\n\ndata: A numeric data frame or matrix where rows are observations and columns are variables.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\ntol: Tolerance value for matrix inversion (solve()); default is 1e-25.\n\n\n\n\n\nPurpose: Perform Mardia’s skewness and kurtosis tests for assessing multivariate normality.\nUsage:\nmardia(data, use_population = TRUE, tol = 1e-25)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\ntol: Tolerance value used during matrix inversion with solve(). Default is 1e-25.\n\n\n\n\n\nPurpose: Perform Royston’s multivariate normality test by combining univariate Shapiro-Wilk or Shapiro-Francia statistics and adjusting for variable correlations.\nUsage:\nroyston(data, tol = 1e-25)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\ntol: Numeric tolerance used for matrix inversion via solve(). Default is 1e-25.\n\n\n\n\n\nPurpose: Perform the Doornik-Hansen omnibus test for multivariate normality using transformed data to combine skewness and kurtosis measures.\nUsage:\ndoornik_hansen(data)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\n\n\n\n\n\nPurpose: Perform the E-statistic test (Energy test) for multivariate normality using parametric bootstrap to estimate the null distribution.\nUsage:\nenergy(data, R = 1000, seed = 123)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\nR: Integer; number of bootstrap replicates. Default is 1000.\nseed: Optional integer for setting random seed to ensure reproducibility.\n\n\n\n\n\nPurpose: Identify multivariate outliers using robust Mahalanobis distances with either a quantile-based or ARW-adjusted cutoff. Optionally generates a Q-Q plot.\nUsage:\nmv_outlier(\n  data,\n  outlier = TRUE,\n  qqplot = TRUE,\n  alpha = 0.05,\n  method = \"quan\",\n  label = TRUE,\n  title = \"Chi-Square Q-Q Plot\"\n)\n\ndata: A numeric matrix or data frame with rows as observations and at least two numeric columns.\noutlier: Logical; if TRUE, includes Mahalanobis distances and outlier flags in the output. Default is TRUE.\nqqplot: Logical; if TRUE, generates a chi-square Q-Q plot for visualizing outliers. Default is TRUE.\nalpha: Numeric; significance level used for ARW-adjusted cutoff. Default is 0.05.\nmethod: Outlier detection method. Must be either \"quan\" or \"adj\". Default is \"quan\".\nlabel: Logical; if TRUE and qqplot = TRUE, labels outliers in the plot. Default is TRUE.\ntitle: Character string for plot title. Default is \"Chi-Square Q-Q Plot\".\n\n\n\n\n\nPurpose: Generate Mahalanobis Q-Q plots or kernel density visualizations for two numeric variables to assess multivariate normality or bivariate distribution shape.\nUsage:\nmultivariate_diagnostic_plot(data, type = \"qq\", tol = 1e-25, use_population = TRUE)\n\ndata: A numeric vector, matrix, or data frame. Must contain exactly two numeric variables. Non-numeric columns are dropped; incomplete rows are removed.\ntype: One of \"qq\", \"persp\", or \"contour\". Default is \"qq\".\n\"qq\": Mahalanobis Q-Q plot\n\"persp\": 3D KDE surface (interactive)\n\"contour\": 2D KDE contour (interactive)\ntol: Tolerance value used during matrix inversion. Default is 1e-25.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\n\n\n\n\n\nPurpose: Generate diagnostic plots for univariate or multivariate numeric data, including Q-Q plots, histograms with density overlays, boxplots, and scatterplot matrices.\nUsage:\nunivariate_diagnostic_plot(data, type = \"qq\", title = NULL, interactive = FALSE)\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\ntype: Character string specifying the type of plot to create. One of:\n\n\"qq\": Q-Q plots\n\n\"histogram\": Histograms with density curves\n\"boxplot\": Boxplots\n\"scatter\": Scatterplot matrix\ntitle: Optional character string specifying a custom plot title.\ninteractive: Logical; if TRUE, returns an interactive plotly plot.\n\n\n\n\n\nPurpose: Perform a univariate normality test on each numeric variable in a vector, matrix, or data frame.\nUsage:\ntest_univariate_normality(data, test = \"SW\")\n\ndata: A numeric vector, matrix, or data frame. Non-numeric columns are removed with a warning.\ntest: Character string specifying the test to apply. Options include:\n\n\"SW\": Shapiro-Wilk\n\n\"SF\": Shapiro-Francia\n\"AD\": Anderson-Darling\n\"CVM\": Cramér-von Mises\n\"Lillie\": Lilliefors\n\n\n\n\n\nPurpose: Compute descriptive statistics for each numeric variable in a data frame, matrix, or vector.\nUsage:\ndescriptives(data)\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\n\n\n\n\n\nPurpose: Apply Box-Cox power transformation to each numeric variable in the input data using either estimated or rounded lambda values.\nUsage:\nbox_cox_transform(data, type = \"optimal\")\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\ntype: Character; either \"optimal\" (use estimated lambda) or \"rounded\" (use rounded lambda). Default is \"optimal\"."
+  },
+  {
+    "objectID": "reference.html#function-reference",
+    "href": "reference.html#function-reference",
+    "title": "MVN",
+    "section": "",
+    "text": "Purpose: Conduct multivariate normality testing, descriptive statistics, outlier detection, and transformations in one wrapper.\nUsage:\nmvn(\n  data,\n  subset = NULL,\n  mvn_test = \"hz\",\n  use_population = TRUE,\n  tol = 1e-25,\n  alpha = 0.05,\n  scale = FALSE,\n  descriptives = TRUE,\n  transform = \"none\",\n  R = 1000,\n  univariate_test = \"AD\",\n  multivariate_outlier_method = \"none\",\n  box_cox_transform = FALSE,\n  box_cox_transform_type = \"optimal\",\n  show_new_data = FALSE,\n  tidy = TRUE\n)\n\ndata: Data frame or matrix of numeric variables.\nsubset: (Optional) Grouping variable name for subset analyses.\nmvn_test: One of \"hz\", \"royston\", \"mardia\", \"doornik_hansen\", \"energy\".\nuse_population: Logical; if TRUE, use population covariance matrix (default is TRUE).\ntol: Numeric tolerance for matrix inversion via solve() (default 1e-25).\nalpha: Significance level for ARW outlier cutoff if multivariate_outlier_method = \"adj\" (default 0.05).\nscale: Logical; if TRUE, standardizes the variables before analysis.\ndescriptives: Logical; compute descriptive statistics if TRUE (default TRUE).\ntransform: One of \"none\", \"log\", \"sqrt\", or \"square\". Applies marginal transformation before analysis.\nR: Number of bootstrap replicates for the \"energy\" test. Default is 1000.\nunivariate_test: One of \"SW\", \"CVM\", \"Lillie\", \"SF\", \"AD\". Default is \"AD\".\nmultivariate_outlier_method: One of \"none\", \"quan\", \"adj\".\nbox_cox_transform: Logical; if TRUE, applies Box-Cox transformation (default FALSE).\nbox_cox_transform_type: Either \"optimal\" or \"rounded\" lambda for Box-Cox (default \"optimal\").\nshow_new_data: Logical; if TRUE, include data with outliers removed (default FALSE).\ntidy: Logical; if TRUE, returns tidy-format results with a Group column (default TRUE).\n\n\n\n\n\nPurpose: Provide a structured summary of results from an object of class mvn, including multivariate and univariate test results, descriptive statistics, and outliers (if applicable).\nUsage:\nsummary(object, select = c(\"mvn\", \"univariate\", \"descriptives\", \"outliers\", \"new_data\"))\n\nobject: An object of class mvn, as returned by the mvn() function.\nselect: Character vector specifying which components to display. Must include one or more of \"mvn\", \"univariate\", \"descriptives\", \"outliers\", or \"new_data\". Defaults to all.\n…: Additional arguments (currently unused).\n\n\n\n\n\nPurpose: Generate diagnostic plots for objects of class mvn, including multivariate Q-Q plots, kernel density plots (3D or contour), univariate plots (Q-Q, histograms, boxplots), and multivariate outlier plots.\nUsage:\nplot(x, diagnostic = c(\"multivariate\", \"univariate\", \"outlier\"), type = NULL, interactive = FALSE)\n\nx: An object of class mvn, as returned by the mvn() function.\n…: Additional arguments passed to internal plotting functions:\n\ndiagnostic: Type of diagnostic plot to display — one of \"multivariate\", \"univariate\", \"outlier\".\ntype: Specific plot type (e.g., \"qq\", \"boxplot\", \"persp\").\ninteractive: Logical; if TRUE, uses interactive plotting with plotly (only for univariate plots).\n\n\n\n\n\n\nPurpose: Perform Henze-Zirkler’s test for multivariate normality using a log-normal approximation of the test statistic.\nUsage:\nhz(data, use_population = TRUE, tol = 1e-25)\n\ndata: A numeric data frame or matrix where rows are observations and columns are variables.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\ntol: Tolerance value for matrix inversion (solve()); default is 1e-25.\n\n\n\n\n\nPurpose: Perform Mardia’s skewness and kurtosis tests for assessing multivariate normality.\nUsage:\nmardia(data, use_population = TRUE, tol = 1e-25)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\ntol: Tolerance value used during matrix inversion with solve(). Default is 1e-25.\n\n\n\n\n\nPurpose: Perform Royston’s multivariate normality test by combining univariate Shapiro-Wilk or Shapiro-Francia statistics and adjusting for variable correlations.\nUsage:\nroyston(data, tol = 1e-25)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\ntol: Numeric tolerance used for matrix inversion via solve(). Default is 1e-25.\n\n\n\n\n\nPurpose: Perform the Doornik-Hansen omnibus test for multivariate normality using transformed data to combine skewness and kurtosis measures.\nUsage:\ndoornik_hansen(data)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\n\n\n\n\n\nPurpose: Perform the E-statistic test (Energy test) for multivariate normality using parametric bootstrap to estimate the null distribution.\nUsage:\nenergy(data, R = 1000, seed = 123)\n\ndata: A numeric matrix or data frame with observations in rows and variables in columns.\nR: Integer; number of bootstrap replicates. Default is 1000.\nseed: Optional integer for setting random seed to ensure reproducibility.\n\n\n\n\n\nPurpose: Identify multivariate outliers using robust Mahalanobis distances with either a quantile-based or ARW-adjusted cutoff. Optionally generates a Q-Q plot.\nUsage:\nmv_outlier(\n  data,\n  outlier = TRUE,\n  qqplot = TRUE,\n  alpha = 0.05,\n  method = \"quan\",\n  label = TRUE,\n  title = \"Chi-Square Q-Q Plot\"\n)\n\ndata: A numeric matrix or data frame with rows as observations and at least two numeric columns.\noutlier: Logical; if TRUE, includes Mahalanobis distances and outlier flags in the output. Default is TRUE.\nqqplot: Logical; if TRUE, generates a chi-square Q-Q plot for visualizing outliers. Default is TRUE.\nalpha: Numeric; significance level used for ARW-adjusted cutoff. Default is 0.05.\nmethod: Outlier detection method. Must be either \"quan\" or \"adj\". Default is \"quan\".\nlabel: Logical; if TRUE and qqplot = TRUE, labels outliers in the plot. Default is TRUE.\ntitle: Character string for plot title. Default is \"Chi-Square Q-Q Plot\".\n\n\n\n\n\nPurpose: Generate Mahalanobis Q-Q plots or kernel density visualizations for two numeric variables to assess multivariate normality or bivariate distribution shape.\nUsage:\nmultivariate_diagnostic_plot(data, type = \"qq\", tol = 1e-25, use_population = TRUE)\n\ndata: A numeric vector, matrix, or data frame. Must contain exactly two numeric variables. Non-numeric columns are dropped; incomplete rows are removed.\ntype: One of \"qq\", \"persp\", or \"contour\". Default is \"qq\".\n\"qq\": Mahalanobis Q-Q plot\n\"persp\": 3D KDE surface (interactive)\n\"contour\": 2D KDE contour (interactive)\ntol: Tolerance value used during matrix inversion. Default is 1e-25.\nuse_population: Logical; if TRUE, uses population covariance matrix. Default is TRUE.\n\n\n\n\n\nPurpose: Generate diagnostic plots for univariate or multivariate numeric data, including Q-Q plots, histograms with density overlays, boxplots, and scatterplot matrices.\nUsage:\nunivariate_diagnostic_plot(data, type = \"qq\", title = NULL, interactive = FALSE)\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\ntype: Character string specifying the type of plot to create. One of:\n\n\"qq\": Q-Q plots\n\n\"histogram\": Histograms with density curves\n\"boxplot\": Boxplots\n\"scatter\": Scatterplot matrix\ntitle: Optional character string specifying a custom plot title.\ninteractive: Logical; if TRUE, returns an interactive plotly plot.\n\n\n\n\n\nPurpose: Perform a univariate normality test on each numeric variable in a vector, matrix, or data frame.\nUsage:\ntest_univariate_normality(data, test = \"SW\")\n\ndata: A numeric vector, matrix, or data frame. Non-numeric columns are removed with a warning.\ntest: Character string specifying the test to apply. Options include:\n\n\"SW\": Shapiro-Wilk\n\n\"SF\": Shapiro-Francia\n\"AD\": Anderson-Darling\n\"CVM\": Cramér-von Mises\n\"Lillie\": Lilliefors\n\n\n\n\n\nPurpose: Compute descriptive statistics for each numeric variable in a data frame, matrix, or vector.\nUsage:\ndescriptives(data)\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\n\n\n\n\n\nPurpose: Apply Box-Cox power transformation to each numeric variable in the input data using either estimated or rounded lambda values.\nUsage:\nbox_cox_transform(data, type = \"optimal\")\n\ndata: A numeric vector, matrix, or data frame with observations in rows and variables in columns.\ntype: Character; either \"optimal\" (use estimated lambda) or \"rounded\" (use rounded lambda). Default is \"optimal\"."
+  },
+  {
+    "objectID": "tutorials/mvn-tests.html",
+    "href": "tutorials/mvn-tests.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis. In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz et al. (2014).\n\n\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9\n\n\n\n\n\n\nThe Henze–Zirkler test is recommended for its balanced control of Type I error and good power properties under moderate sample sizes; a p-value below 0.05 suggests departure from multivariate normality based on a log-normalized distance metric.\n\nhz_result &lt;- mvn(data = df, mvn_test = \"hz\")\nsummary(hz_result, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.286   0.915 ✓ Normal\n\n\n\n\n\n\nThe Royston test aggregates transformed univariate Shapiro–Wilk statistics into a joint chi‐square test and is noted for reliable performance in small-to-moderate samples.\n\nro_result &lt;- mvn(data = df, mvn_test = \"royston\")\nsummary(ro_result, select = \"mvn\")\n\n     Test Statistic p.value      MVN\n1 Royston     2.698   0.245 ✓ Normal\n\n\n\n\n\n\nMardia’s skewness and kurtosis measures provide insight into specific aspects of distributional shape; examining both skewness and kurtosis p-values helps diagnose the nature of non-normality, though neither may alone signal departure when sample size is limited.\n\nmardia_result &lt;- mvn(data = df, mvn_test = \"mardia\")\nsummary(mardia_result, select = \"mvn\")\n\n             Test Statistic p.value      MVN\n1 Mardia Skewness     0.760   0.944 ✓ Normal\n2 Mardia Kurtosis     0.093   0.926 ✓ Normal\n\n\n\n\n\n\nThe Doornik–Hansen approach applies transformations to approximate a chi‐square distribution of combined moment statistics.\n\ndh_result &lt;- mvn(data = df, mvn_test = \"doornik_hansen\")\nsummary(dh_result, select = \"mvn\")\n\n            Test Statistic df p.value          MVN\n1 Doornik-Hansen     11.57  4   0.021 ✗ Not normal\n\n\n\n\n\n\nBased on a nonparametric energy distance metric, this test is sensitive to any general deviation from normality. It provides a robust alternative especially when data exhibit heavy tails or multimodality.\n\nenergy_result &lt;- mvn(data = df, mvn_test = \"energy\")\nsummary(energy_result, select = \"mvn\")\n\n         Test Statistic p.value      MVN\n1 E-Statistic     0.527   0.783 ✓ Normal\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nNo single test is universally best; Korkmaz et al. (2014) recommend combining multiple numerical tests with graphical diagnostics to make a more reliable decision on multivariate normality."
+  },
+  {
+    "objectID": "tutorials/mvn-tests.html#multivariate-normality-tests",
+    "href": "tutorials/mvn-tests.html#multivariate-normality-tests",
+    "title": "MVN",
+    "section": "",
+    "text": "Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis. In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz et al. (2014).\n\n\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9\n\n\n\n\n\n\nThe Henze–Zirkler test is recommended for its balanced control of Type I error and good power properties under moderate sample sizes; a p-value below 0.05 suggests departure from multivariate normality based on a log-normalized distance metric.\n\nhz_result &lt;- mvn(data = df, mvn_test = \"hz\")\nsummary(hz_result, select = \"mvn\")\n\n           Test Statistic p.value      MVN\n1 Henze-Zirkler     0.286   0.915 ✓ Normal\n\n\n\n\n\n\nThe Royston test aggregates transformed univariate Shapiro–Wilk statistics into a joint chi‐square test and is noted for reliable performance in small-to-moderate samples.\n\nro_result &lt;- mvn(data = df, mvn_test = \"royston\")\nsummary(ro_result, select = \"mvn\")\n\n     Test Statistic p.value      MVN\n1 Royston     2.698   0.245 ✓ Normal\n\n\n\n\n\n\nMardia’s skewness and kurtosis measures provide insight into specific aspects of distributional shape; examining both skewness and kurtosis p-values helps diagnose the nature of non-normality, though neither may alone signal departure when sample size is limited.\n\nmardia_result &lt;- mvn(data = df, mvn_test = \"mardia\")\nsummary(mardia_result, select = \"mvn\")\n\n             Test Statistic p.value      MVN\n1 Mardia Skewness     0.760   0.944 ✓ Normal\n2 Mardia Kurtosis     0.093   0.926 ✓ Normal\n\n\n\n\n\n\nThe Doornik–Hansen approach applies transformations to approximate a chi‐square distribution of combined moment statistics.\n\ndh_result &lt;- mvn(data = df, mvn_test = \"doornik_hansen\")\nsummary(dh_result, select = \"mvn\")\n\n            Test Statistic df p.value          MVN\n1 Doornik-Hansen     11.57  4   0.021 ✗ Not normal\n\n\n\n\n\n\nBased on a nonparametric energy distance metric, this test is sensitive to any general deviation from normality. It provides a robust alternative especially when data exhibit heavy tails or multimodality.\n\nenergy_result &lt;- mvn(data = df, mvn_test = \"energy\")\nsummary(energy_result, select = \"mvn\")\n\n         Test Statistic p.value      MVN\n1 E-Statistic     0.527   0.783 ✓ Normal\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nNo single test is universally best; Korkmaz et al. (2014) recommend combining multiple numerical tests with graphical diagnostics to make a more reliable decision on multivariate normality."
+  },
+  {
+    "objectID": "tutorials/mvn-tests.html#references",
+    "href": "tutorials/mvn-tests.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html",
+    "href": "tutorials/subset-analysis.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Subset analysis lets you assess multivariate normality separately in each level of a factor. This is useful when data structure or experimental design requires group-wise validation."
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#subset-analysis",
+    "href": "tutorials/subset-analysis.html#subset-analysis",
+    "title": "MVN",
+    "section": "",
+    "text": "Subset analysis lets you assess multivariate normality separately in each level of a factor. This is useful when data structure or experimental design requires group-wise validation."
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#example-data",
+    "href": "tutorials/subset-analysis.html#example-data",
+    "title": "MVN",
+    "section": "Example Data",
+    "text": "Example Data\n\nlibrary(MVN)\n\n# Remove the 4th column, keep Species as grouping\niris_df &lt;- iris[-4]\nhead(iris_df)\n\n  Sepal.Length Sepal.Width Petal.Length Species\n1          5.1         3.5          1.4  setosa\n2          4.9         3.0          1.4  setosa\n3          4.7         3.2          1.3  setosa\n4          4.6         3.1          1.5  setosa\n5          5.0         3.6          1.4  setosa\n6          5.4         3.9          1.7  setosa"
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#running-mvn-by-group",
+    "href": "tutorials/subset-analysis.html#running-mvn-by-group",
+    "title": "MVN",
+    "section": "1. Running MVN by Group",
+    "text": "1. Running MVN by Group\nSpecify the subset argument in mvn():\n\n# Henze–Zirkler test by species\nsubset_res &lt;- mvn(\n  data       = iris_df,\n  subset     = \"Species\",\n  mvn_test   = \"hz\"\n)"
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#viewing-group-specific-results",
+    "href": "tutorials/subset-analysis.html#viewing-group-specific-results",
+    "title": "MVN",
+    "section": "2. Viewing Group-Specific Results",
+    "text": "2. Viewing Group-Specific Results\nExtract multivariate normality for each group:\n\nsummary(subset_res, select = \"mvn\")\n\n       Group          Test Statistic p.value      MVN\n1     setosa Henze-Zirkler     0.524   0.831 ✓ Normal\n2 versicolor Henze-Zirkler     0.714   0.326 ✓ Normal\n3  virginica Henze-Zirkler     0.726   0.299 ✓ Normal\n\n\nAll species groups exhibit multivariate normality (p &gt; 0.05). Group-wise analysis ensures that assumptions hold within each category."
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#group-wise-diagnostics",
+    "href": "tutorials/subset-analysis.html#group-wise-diagnostics",
+    "title": "MVN",
+    "section": "3. Group-Wise Diagnostics",
+    "text": "3. Group-Wise Diagnostics\nYou can also generate diagnostic plots for each subset by subset_res object to plot():\n\n# Mahalanobis Q–Q plots for each species\nplot(\n  subset_res,\n  diagnostic = \"multivariate\",\n  type       = \"qq\"\n)"
+  },
+  {
+    "objectID": "tutorials/subset-analysis.html#references",
+    "href": "tutorials/subset-analysis.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html",
+    "href": "tutorials/diagnostic-visualizations.html",
+    "title": "MVN",
+    "section": "",
+    "text": "Before relying on numerical test results, it’s essential to visualize data to identify patterns and deviations. We’ll demonstrate a suite of diagnostic plots implemented in MVN."
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html#diagnostic-visualizations",
+    "href": "tutorials/diagnostic-visualizations.html#diagnostic-visualizations",
+    "title": "MVN",
+    "section": "",
+    "text": "Before relying on numerical test results, it’s essential to visualize data to identify patterns and deviations. We’ll demonstrate a suite of diagnostic plots implemented in MVN."
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html#example-data",
+    "href": "tutorials/diagnostic-visualizations.html#example-data",
+    "title": "MVN",
+    "section": "Example Data",
+    "text": "Example Data\n\n# Load the package:\nlibrary(MVN)\n\nWe’ll use two numeric variables from the built-in iris dataset:\n\ndf &lt;- iris[1:50, 1:2]\nhead(df)\n\n  Sepal.Length Sepal.Width\n1          5.1         3.5\n2          4.9         3.0\n3          4.7         3.2\n4          4.6         3.1\n5          5.0         3.6\n6          5.4         3.9\n\n\nWe’ll run the Henze–Zirkler test\n\nresult &lt;- mvn(data = df)"
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html#multivariate-diagnostics",
+    "href": "tutorials/diagnostic-visualizations.html#multivariate-diagnostics",
+    "title": "MVN",
+    "section": "Multivariate Diagnostics",
+    "text": "Multivariate Diagnostics\n\n1. Mahalanobis Q–Q Plot\nCompare empirical Mahalanobis distances to theoretical chi-square quantiles:\n\nplot(result, diagnostic = \"multivariate\", type = \"qq\")\n\n\n\n\n\n\n\n\nPoints deviating from the line signal departures from multivariate normality.\n\n\n\n2. 3D Perspective Plot\nVisualize the estimated multivariate density surface:\n\nplot(result, diagnostic = \"multivariate\", type = \"persp\")\n\n\n\n\n\nRotate and inspect peaks and valleys to detect shape irregularities.\n\n\n\n3. Contour Plot\nOverlay density contours on the variable space:\n\nplot(result, diagnostic = \"multivariate\", type = \"contour\")\n\n\n\n\n\nContour levels highlight regions of equal density; distorted shapes indicate non-normality."
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html#univariate-diagnostics",
+    "href": "tutorials/diagnostic-visualizations.html#univariate-diagnostics",
+    "title": "MVN",
+    "section": "Univariate Diagnostics",
+    "text": "Univariate Diagnostics\n\n1. Q–Q Plots\nAssess each variable against a theoretical normal distribution:\n\nplot(result, diagnostic = \"univariate\", type = \"qq\")\n\n\n\n\n\n\n\n\nGood normality shows points near the line across variables.\n\n\n\n2. Boxplots\nVisualize median, quartiles, and potential outliers for each variable:\n\nplot(result, diagnostic = \"univariate\", type = \"boxplot\")\n\n\n\n\n\n\n\n\nOutliers appear as points beyond whiskers; asymmetry suggests skew.\n\n\n\n3. Histograms\nCombine histograms with fitted normal density curves:\n\nplot(result, diagnostic = \"univariate\", type = \"histogram\")\n\n\n\n\n\n\n\n\nCompare empirical distributions to the smooth normal curve.\n\n\n\n4. Scatterplot Matrix\nExplore pairwise relationships among variables:\n\nplot(result, diagnostic = \"univariate\", type = \"scatter\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nFor interactive exploration, set interactive = TRUE in any plot call to use Plotly-based versions with zoom and hover capabilities."
+  },
+  {
+    "objectID": "tutorials/diagnostic-visualizations.html#references",
+    "href": "tutorials/diagnostic-visualizations.html#references",
+    "title": "MVN",
+    "section": "References",
+    "text": "References\nKorkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. The R Journal. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf"
+  }
+]

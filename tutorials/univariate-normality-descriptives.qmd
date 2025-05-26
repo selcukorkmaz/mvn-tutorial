@@ -1,0 +1,95 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: true
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+```
+
+## Univariate Normality & Descriptive Statistics
+
+Before proceeding with the joint multivariate analyses, it is essential to confirm that each variable separately approximates normality and to obtain descriptive insights such as mean, variance, skewness, and kurtosis. In this section, we’ll first run univariate Anderson–Darling tests on each variable, then calculate key summary statistics.
+
+---
+
+### Example Data {.unnumbered .unlisted}
+
+```{r}
+# Load the package:
+library(MVN)
+```
+
+We’ll use two numeric variables from the built-in `iris` dataset:
+
+```{r}
+df <- iris[1:50, 1:2]
+head(df)
+```
+
+---
+
+### Univariate Normality Tests
+
+```{r}
+# Load MVN
+library(MVN)
+
+# Example data
+df <- iris[1:50, 1:2]
+```
+
+Use the existing `mvn` object (e.g., from the Henze–Zirkler test) to pull out Anderson–Darling statistics for each variable:
+
+```{r}
+# Run mvn (if not already run)
+hz_result <- mvn(data = df, mvn_test = "hz", univariate_test = "AD")
+
+# Extract univariate Anderson–Darling results
+summary(hz_result, select = "uni")
+```
+
+**Sepal.Length**  
+- Statistic = 0.408  
+- p-value = 0.335 → p > 0.05 → Normality assumption is not violated
+
+**Sepal.Width**  
+- Statistic = 0.491  
+- p-value = 0.210 → p > 0.05 → Normality assumption is not violated
+
+Both variables show no significant deviation from a normal distribution based on the Anderson–Darling test.
+
+---
+
+::: {.callout-tip}
+In the `mvn()` function, the default univariate normality test is "AD" (Anderson–Darling). However, you can choose alternative tests such as "SW" (Shapiro–Wilk), "SF" (Shapiro–Francia), "CVM" (Cramér–von Mises), or "Lillie" (Lilliefors).
+:::
+---
+
+### Descriptive Statistics
+
+Compute numerical summaries—mean, standard deviation, median, minimum, maximum, quartiles, skewness, and kurtosis—for each variable:
+
+```{r}
+# Descriptive statistics for each variable
+summary(hz_result, select = "descriptive")
+```
+
+
+---
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. *The R Journal*. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf

@@ -1,0 +1,104 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: true
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+```
+
+
+
+## Data Transformation Techniques  
+Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the `transform` argument, as well as optimal Box–Cox transformation.
+
+---
+
+## Example Data and Baseline Assessment
+
+```{r}
+# Load package and example data
+library(MVN)
+df <- iris[1:50, 1:4]
+
+# Baseline Henze–Zirkler test without transformation
+result <- mvn(data = df, mvn_test = "hz")
+summary(result, select = "mvn")
+```
+
+The untransformed data are marginally on the threshold of normality (p = 0.05), indicating potential departure from multivariate normality.
+
+
+## 1. Basic Transformations
+
+Use the `transform` parameter in `mvn()` to apply:
+
+- **"log"** (natural log)
+- **"sqrt"** (square root)
+- **"square"** (power of 2)
+
+```{r}
+# Log-transform
+res_log <- mvn(data = df, mvn_test = "hz", transform = "log")
+summary(res_log, select = "mvn")
+```
+The log transformation improves normality (p = 0.379), suggesting data are now consistent with a multivariate normal distribution.
+
+```{r}
+# Square-root transform
+res_sqrt <- mvn(data = df, mvn_test = "hz", transform = "sqrt")
+summary(res_sqrt, select = "mvn")
+```
+
+The square-root transformation also corrects skewness, producing p = 0.253 and acceptance of normality.
+
+
+```{r}
+# Square transform
+res_sq <- mvn(data = df, mvn_test = "hz", transform = "square")
+summary(res_sq, select = "mvn")
+```
+
+Squaring amplifies deviations and results in clear non-normality (p < 0.001), so this transform is not recommended.
+
+---
+
+## 2. Box–Cox Transformation
+
+
+Enable Box–Cox with optimal lambda estimation using:
+
+```{r}
+res_bc_sum <- mvn(
+  data              = df,
+  mvn_test          = "hz",
+  box_cox_transform = TRUE
+)
+summary(res_bc_sum, select = "mvn")
+```
+
+The Box–Cox transformation yields p = 0.332, indicating a good fit to multivariate normality with data-driven lambda values applied.
+
+Here are the optimal lambda values used for transformation:
+
+```{r}
+res_bc_sum$box_cox_lambda
+```
+
+---
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. *The R Journal*. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf
