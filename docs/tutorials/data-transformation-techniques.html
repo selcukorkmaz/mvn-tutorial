@@ -174,8 +174,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#data-transformation-techniques" id="toc-data-transformation-techniques" class="nav-link active" data-scroll-target="#data-transformation-techniques">Data Transformation Techniques</a></li>
   <li><a href="#example-data-and-baseline-assessment" id="toc-example-data-and-baseline-assessment" class="nav-link" data-scroll-target="#example-data-and-baseline-assessment">Example Data and Baseline Assessment</a></li>
-  <li><a href="#basic-transformations" id="toc-basic-transformations" class="nav-link" data-scroll-target="#basic-transformations">1. Basic Transformations</a></li>
-  <li><a href="#boxcox-transformation" id="toc-boxcox-transformation" class="nav-link" data-scroll-target="#boxcox-transformation">2. Box–Cox Transformation</a></li>
+  <li><a href="#basic-transformations" id="toc-basic-transformations" class="nav-link" data-scroll-target="#basic-transformations">1. Basic Transformations</a>
+  <ul>
+  <li><a href="#log-transformation" id="toc-log-transformation" class="nav-link" data-scroll-target="#log-transformation">1.1 Log Transformation</a></li>
+  <li><a href="#square-root-transformation" id="toc-square-root-transformation" class="nav-link" data-scroll-target="#square-root-transformation">1.2 Square-root Transformation</a></li>
+  <li><a href="#square-transformation" id="toc-square-transformation" class="nav-link" data-scroll-target="#square-transformation">1.3 Square Transformation</a></li>
+  </ul></li>
+  <li><a href="#power-transformation" id="toc-power-transformation" class="nav-link" data-scroll-target="#power-transformation">2. Power Transformation</a>
+  <ul>
+  <li><a href="#box-cox-transformation" id="toc-box-cox-transformation" class="nav-link" data-scroll-target="#box-cox-transformation">2.1. Box-Cox Transformation</a></li>
+  <li><a href="#box-cox-with-negatives-allowed" id="toc-box-cox-with-negatives-allowed" class="nav-link" data-scroll-target="#box-cox-with-negatives-allowed">2.2. Box-Cox with Negatives Allowed</a></li>
+  <li><a href="#yeo-johnson-transformation" id="toc-yeo-johnson-transformation" class="nav-link" data-scroll-target="#yeo-johnson-transformation">2.3. Yeo-Johnson Transformation</a></li>
+  </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
@@ -187,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="data-transformation-techniques" class="level2">
 <h2 class="anchored" data-anchor-id="data-transformation-techniques">Data Transformation Techniques</h2>
-<p>Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the <code>transform</code> argument, as well as optimal Box–Cox transformation.</p>
+<p>Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the transform argument, as well as optimal Box–Cox transformation. Additionally, MVN provides support for a broader class of power transformations through the power_family argument. These include the standard Box–Cox, its extension that accommodates non-positive values (Box–Cox with negatives allowed), and the Yeo–Johnson transformation. Each method automatically estimates optimal lambda values for transformation and can be used in conjunction with multivariate normality tests to evaluate improvements in distributional properties.</p>
 <hr>
 </section>
 <section id="example-data-and-baseline-assessment" class="level2">
@@ -201,77 +211,121 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value          MVN
-1 Henze-Zirkler     0.949    0.05 ✗ Not normal</code></pre>
+<pre><code>           Test Statistic p.value     Method          MVN
+1 Henze-Zirkler     0.949    0.05 asymptotic ✗ Not normal</code></pre>
 </div>
 </div>
 <p>The untransformed data are marginally on the threshold of normality (p = 0.05), indicating potential departure from multivariate normality.</p>
 </section>
 <section id="basic-transformations" class="level2">
 <h2 class="anchored" data-anchor-id="basic-transformations">1. Basic Transformations</h2>
-<p>Use the <code>transform</code> parameter in <code>mvn()</code> to apply:</p>
-<ul>
-<li><strong>“log”</strong> (natural log)</li>
-<li><strong>“sqrt”</strong> (square root)</li>
-<li><strong>“square”</strong> (power of 2)</li>
-</ul>
+<p>Basic transformations can be used to address issues like skewness and heteroscedasticity before assessing multivariate normality. The <code>mvn()</code> function allows simple transformations using the transform argument. Supported options include natural logarithm (“log”), square root (“sqrt”), and squaring the values (“square”). These methods are quick to apply and can help improve the suitability of data for multivariate analysis, although their effectiveness may vary depending on the distribution of each variable.</p>
+<section id="log-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="log-transformation">1.1 Log Transformation</h3>
+<p>The log transformation applies the natural logarithm to all variables, which is especially useful when dealing with right-skewed data.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-transform</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>res_log <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"log"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_log, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>res_log <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"log"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_log, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value      MVN
-1 Henze-Zirkler     0.789   0.379 ✓ Normal</code></pre>
+<pre><code>           Test Statistic p.value     Method      MVN
+1 Henze-Zirkler     0.789   0.379 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
-<p>The log transformation improves normality (p = 0.379), suggesting data are now consistent with a multivariate normal distribution.</p>
+<p>In this case, applying the log transformation yields a p-value of 0.379 from the Henze-Zirkler test, indicating that the transformed data conform well to multivariate normality.</p>
+</section>
+<section id="square-root-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="square-root-transformation">1.2 Square-root Transformation</h3>
+<p>The square-root transformation offers a less aggressive correction than the log and is suitable for moderately skewed data.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Square-root transform</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>res_sqrt <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"sqrt"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_sqrt, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res_sqrt <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"sqrt"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_sqrt, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value      MVN
-1 Henze-Zirkler     0.829   0.253 ✓ Normal</code></pre>
+<pre><code>           Test Statistic p.value     Method      MVN
+1 Henze-Zirkler     0.829   0.253 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
-<p>The square-root transformation also corrects skewness, producing p = 0.253 and acceptance of normality.</p>
+<p>After applying this transformation, the p-value is 0.253, which still supports the assumption of multivariate normality. This method retains more of the original data structure while improving distributional properties.</p>
+</section>
+<section id="square-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="square-transformation">1.3 Square Transformation</h3>
+<p>The square transformation raises each value to the power of two. While mathematically valid, this operation tends to amplify skewness and outliers.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Square transform</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>res_sq <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"square"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_sq, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>res_sq <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>, <span class="at">transform =</span> <span class="st">"square"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_sq, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value          MVN
-1 Henze-Zirkler     1.278  &lt;0.001 ✗ Not normal</code></pre>
+<pre><code>           Test Statistic p.value     Method          MVN
+1 Henze-Zirkler     1.278  &lt;0.001 asymptotic ✗ Not normal</code></pre>
 </div>
 </div>
-<p>Squaring amplifies deviations and results in clear non-normality (p &lt; 0.001), so this transform is not recommended.</p>
+<p>In the given example, squaring the data results in a p-value less than 0.001, indicating strong deviation from normality. As such, squaring is generally not advisable when the goal is to achieve or maintain multivariate normality.</p>
 <hr>
 </section>
-<section id="boxcox-transformation" class="level2">
-<h2 class="anchored" data-anchor-id="boxcox-transformation">2. Box–Cox Transformation</h2>
-<p>Enable Box–Cox with optimal lambda estimation using:</p>
+</section>
+<section id="power-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="power-transformation">2. Power Transformation</h2>
+<p>Power transformations are commonly applied in multivariate normality testing to stabilize variance and make the data more normally distributed. The <code>mvn()</code> function supports various power transformation families, allowing automatic selection of optimal lambda values to transform each variable accordingly. Below are three supported methods—Box-Cox, Box-Cox with negatives allowed, and Yeo-Johnson—each applied with Henze-Zirkler’s test to assess multivariate normality.</p>
+<section id="box-cox-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="box-cox-transformation">2.1. Box-Cox Transformation</h3>
+<p>The Box–Cox transformation is applied first. It estimates the optimal lambda values to transform the variables, assuming all data are strictly positive.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res_bc_sum <span class="ot">&lt;-</span> <span class="fu">mvn</span>(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data              =</span> df,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mvn_test          =</span> <span class="st">"hz"</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">box_cox_transform =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">power_family =</span> <span class="st">"bcPower"</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_bc_sum, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value      MVN
-1 Henze-Zirkler     0.803   0.332 ✓ Normal</code></pre>
+<pre><code>           Test Statistic p.value     Method      MVN
+1 Henze-Zirkler     0.803   0.332 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
-<p>The Box–Cox transformation yields p = 0.332, indicating a good fit to multivariate normality with data-driven lambda values applied.</p>
-<p>Here are the optimal lambda values used for transformation:</p>
+<p>After transformation, Henze-Zirkler’s test yields a p-value of 0.332, suggesting no evidence against multivariate normality.</p>
+<p>The optimal lambda values used in the transformation can be accessed for further inspection.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res_bc_sum<span class="sc">$</span>box_cox_lambda</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res_bc_sum<span class="sc">$</span>power_transform_lambda</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
   0.41655582   1.27294127   0.72864401   0.02443928 </code></pre>
 </div>
 </div>
 <hr>
+</section>
+<section id="box-cox-with-negatives-allowed" class="level3">
+<h3 class="anchored" data-anchor-id="box-cox-with-negatives-allowed">2.2. Box-Cox with Negatives Allowed</h3>
+<p>The Box–Cox with negatives allowed transformation extends the original Box-Cox method by enabling transformations on variables that may include non-positive values.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res_bc_sum <span class="ot">&lt;-</span> <span class="fu">mvn</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data              =</span> df,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mvn_test          =</span> <span class="st">"hz"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">power_family =</span> <span class="st">"bcnPower"</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_bc_sum, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Test Statistic p.value     Method      MVN
+1 Henze-Zirkler     0.802   0.334 asymptotic ✓ Normal</code></pre>
+</div>
+</div>
+<p>When applied to the same data, it results in a p-value of 0.334, similarly suggesting a good fit to multivariate normality. Like the standard Box-Cox, it also automatically estimates and applies suitable lambda values.</p>
+<hr>
+</section>
+<section id="yeo-johnson-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="yeo-johnson-transformation">2.3. Yeo-Johnson Transformation</h3>
+<p>The Yeo-Johnson transformation is suitable for both positive and negative data and does not require shifting the variable range.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res_bc_sum <span class="ot">&lt;-</span> <span class="fu">mvn</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data              =</span> df,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mvn_test          =</span> <span class="st">"hz"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">power_family =</span> <span class="st">"yjPower"</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_bc_sum, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Test Statistic p.value     Method          MVN
+1 Henze-Zirkler     1.925  &lt;0.001 asymptotic ✗ Not normal</code></pre>
+</div>
+</div>
+<p>In this example, however, it yields a p-value less than 0.001, indicating strong evidence against multivariate normality even after transformation. This suggests that, for this specific dataset, Yeo-Johnson may not be as effective as the Box-Cox-based alternatives in achieving multivariate normality.</p>
+<hr>
+</section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>

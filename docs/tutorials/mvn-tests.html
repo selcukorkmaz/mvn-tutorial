@@ -175,6 +175,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#multivariate-normality-tests" id="toc-multivariate-normality-tests" class="nav-link active" data-scroll-target="#multivariate-normality-tests">Multivariate Normality Tests</a>
   <ul>
   <li><a href="#henzezirkler-test" id="toc-henzezirkler-test" class="nav-link" data-scroll-target="#henzezirkler-test">Henze–Zirkler Test</a></li>
+  <li><a href="#henzewagner-test" id="toc-henzewagner-test" class="nav-link" data-scroll-target="#henzewagner-test">Henze–Wagner Test</a></li>
   <li><a href="#royston-test" id="toc-royston-test" class="nav-link" data-scroll-target="#royston-test">Royston Test</a></li>
   <li><a href="#mardia-test" id="toc-mardia-test" class="nav-link" data-scroll-target="#mardia-test">Mardia Test</a></li>
   <li><a href="#doornikhansen-test" id="toc-doornikhansen-test" class="nav-link" data-scroll-target="#doornikhansen-test">Doornik–Hansen Test</a></li>
@@ -218,8 +219,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>hz_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hz_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value      MVN
-1 Henze-Zirkler     0.286   0.915 ✓ Normal</code></pre>
+<pre><code>           Test Statistic p.value     Method      MVN
+1 Henze-Zirkler     0.286   0.915 asymptotic ✓ Normal</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="henzewagner-test" class="level3">
+<h3 class="anchored" data-anchor-id="henzewagner-test">Henze–Wagner Test</h3>
+<p>The Henze–Wagner test is a statistical method for assessing multivariate normality. It is based on a non-negative functional distance that quantifies the discrepancy between the empirical and theoretical characteristic functions. The test statistic follows an approximate asymptotic distribution under the null hypothesis of multivariate normality. It is particularly suited for datasets where the number of variables <em>p</em> is less than the number of observations <em>n</em> (i.e., <em>p&lt;n</em>). A p-value below 0.05 provides evidence against the assumption of multivariate normality.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hw_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hw"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hw_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Test Statistic p.value     Method      MVN
+1 Henze-Wagner     0.136   0.939 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
 <hr>
@@ -228,11 +242,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="royston-test">Royston Test</h3>
 <p>The Royston test aggregates transformed univariate Shapiro–Wilk statistics into a joint chi‐square test and is noted for reliable performance in small-to-moderate samples.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ro_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"royston"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ro_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ro_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"royston"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ro_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     Test Statistic p.value      MVN
-1 Royston     2.698   0.245 ✓ Normal</code></pre>
+<pre><code>     Test Statistic p.value     Method      MVN
+1 Royston     2.698   0.245 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
 <hr>
@@ -241,12 +255,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="mardia-test">Mardia Test</h3>
 <p>Mardia’s skewness and kurtosis measures provide insight into specific aspects of distributional shape; examining both skewness and kurtosis p-values helps diagnose the nature of non-normality, though neither may alone signal departure when sample size is limited.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mardia_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"mardia"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mardia_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mardia_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"mardia"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mardia_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>             Test Statistic p.value      MVN
-1 Mardia Skewness     0.760   0.944 ✓ Normal
-2 Mardia Kurtosis     0.093   0.926 ✓ Normal</code></pre>
+<pre><code>             Test Statistic p.value     Method      MVN
+1 Mardia Skewness     0.760   0.944 asymptotic ✓ Normal
+2 Mardia Kurtosis     0.093   0.926 asymptotic ✓ Normal</code></pre>
 </div>
 </div>
 <hr>
@@ -255,11 +269,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="doornikhansen-test">Doornik–Hansen Test</h3>
 <p>The Doornik–Hansen approach applies transformations to approximate a chi‐square distribution of combined moment statistics.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dh_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"doornik_hansen"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dh_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dh_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"doornik_hansen"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dh_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            Test Statistic df p.value          MVN
-1 Doornik-Hansen     11.57  4   0.021 ✗ Not normal</code></pre>
+<pre><code>            Test Statistic df p.value     Method          MVN
+1 Doornik-Hansen     11.57  4   0.021 asymptotic ✗ Not normal</code></pre>
 </div>
 </div>
 <hr>
@@ -268,11 +282,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="energy-test">Energy Test</h3>
 <p>Based on a nonparametric energy distance metric, this test is sensitive to any general deviation from normality. It provides a robust alternative especially when data exhibit heavy tails or multimodality.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>energy_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"energy"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(energy_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>energy_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"energy"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(energy_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         Test Statistic p.value      MVN
-1 E-Statistic     0.527   0.783 ✓ Normal</code></pre>
+<pre><code>         Test Statistic p.value    Method      MVN
+1 E-Statistic     0.527   0.783 bootstrap ✓ Normal</code></pre>
 </div>
 </div>
 <hr>
