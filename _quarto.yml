@@ -22,6 +22,8 @@ website:
             file: tutorials/data-transformation-techniques.qmd
           - text: Subset Analysis
             file: tutorials/subset-analysis.qmd
+          - text: Handling Missing Data
+            file: tutorials/missing-data.qmd
       - text: "Reference"
         href: reference.qmd
 

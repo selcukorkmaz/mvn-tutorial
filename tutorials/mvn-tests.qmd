@@ -25,6 +25,10 @@ library(energy)
 
 Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis.  In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz *et al.* (2014).
 
+::: {.callout-tip}
+The `mvn()` function also supports the use of bootstrap resampling for estimating p-values. By setting `bootstrap = TRUE`, you can obtain empirically derived p-values for the Mardia, Henze–Zirkler, Henze-Wagner, Royston and Doornik-Hansen tests. This is particularly useful when working with small sample sizes or when the assumptions underlying asymptotic distributions may not hold. The default setting is FALSE.
+:::
+
 ---
 
 ### Example Data {.unnumbered .unlisted}

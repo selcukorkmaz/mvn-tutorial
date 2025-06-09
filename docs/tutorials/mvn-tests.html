@@ -150,6 +150,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../tutorials/subset-analysis.html" rel="" target="">
  <span class="dropdown-text">Subset Analysis</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/missing-data.html" rel="" target="">
+ <span class="dropdown-text">Handling Missing Data</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item">
@@ -193,6 +197,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="multivariate-normality-tests" class="level2">
 <h2 class="anchored" data-anchor-id="multivariate-normality-tests">Multivariate Normality Tests</h2>
 <p>Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis. In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz <em>et al.</em> (2014).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>mvn()</code> function also supports the use of bootstrap resampling for estimating p-values. By setting <code>bootstrap = TRUE</code>, you can obtain empirically derived p-values for the Mardia, Henze–Zirkler, Henze-Wagner, Royston and Doornik-Hansen tests. This is particularly useful when working with small sample sizes or when the assumptions underlying asymptotic distributions may not hold. The default setting is FALSE.</p>
+</div>
+</div>
 <hr>
 <section id="example-data" class="level3 unnumbered unlisted">
 <h3 class="unnumbered unlisted anchored" data-anchor-id="example-data">Example Data</h3>
