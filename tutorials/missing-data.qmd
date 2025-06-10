@@ -61,10 +61,11 @@ Using `impute = "none"` will remove any rows containing missing values. A warnin
 
 ```{r}
 res <- mvn(data = iris_na, subset = "Species", impute = "none")
-summary(res, "mvn")
+summary(res, select = "mvn")
 ```
 
 In this case, 9 rows with missing values were removed. All three species groups passed the Henze-Zirkler test with p-values greater than 0.05, indicating multivariate normality was retained even after dropping incomplete cases.
+
 ---
 
 ### Mean Imputation
@@ -73,10 +74,11 @@ Setting `impute = "mean"` replaces each missing value with the mean of its corre
 
 ```{r}
 res <- mvn(data = iris_na, subset = "Species", impute = "mean")
-summary(res, "mvn")
+summary(res, select = "mvn")
 ```
 
 Mean imputation slightly altered the data. While versicolor and virginica remained normally distributed, the setosa group now failed the normality test (p < 0.001), suggesting that mean imputation may introduce artifacts, especially in small or skewed groups.
+
 ---
 
 ### Median Imputation
@@ -85,7 +87,7 @@ The "`median`" option replaces missing values with the median of each variable.
 
 ```{r}
 res <- mvn(data = iris_na, subset = "Species", impute = "median")
-summary(res, "mvn")
+summary(res, select = "mvn")
 ```
 
 Results are similar to mean imputation. Setosa again failed the test, while the other two groups maintained multivariate normality. Median imputation is more robust to outliers, but can still shift distribution characteristics depending on the missingness pattern.
@@ -98,10 +100,11 @@ The "`mice`" method applies model-based multiple imputation using chained equati
 
 ```{r}
 res <- mvn(data = iris_na, subset = "Species", impute = "mice")
-summary(res, "mvn")
+summary(res, select = "mvn")
 ```
 
 This approach restored normality across all groups, with all p-values above 0.05. The MICE method generally preserves the structure of the data better than simple mean or median imputation and is recommended when the dataset contains substantial or non-random missingness.
+
 ---
 
 

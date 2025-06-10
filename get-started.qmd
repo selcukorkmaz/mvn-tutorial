@@ -13,7 +13,7 @@ format:
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
+  message = TRUE,
   fig.align = "center"
 )
 ```
