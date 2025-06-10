@@ -14,7 +14,7 @@ format:
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
+  message = TRUE,
   fig.align = "center"
 )
 library(MVN)
@@ -24,6 +24,10 @@ library(energy)
 ##  Multivariate Normality Tests  
 
 Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis.  In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz *et al.* (2014).
+
+::: {.callout-tip}
+The `mvn()` function also supports the use of bootstrap resampling for estimating p-values. By setting `bootstrap = TRUE`, you can obtain empirically derived p-values for the Mardia, Henze–Zirkler, Henze-Wagner, Royston and Doornik-Hansen tests. This is particularly useful when working with small sample sizes or when the assumptions underlying asymptotic distributions may not hold. The default setting is FALSE.
+:::
 
 ---
 
@@ -49,6 +53,16 @@ summary(hz_result, select = "mvn")
 
 ---
 
+### Henze–Wagner Test
+
+The Henze–Wagner test is a statistical method for assessing multivariate normality. It is based on a non-negative functional distance that quantifies the discrepancy between the empirical and theoretical characteristic functions. The test statistic follows an approximate asymptotic distribution under the null hypothesis of multivariate normality. It is particularly suited for datasets where the number of variables *p* is less than the number of observations *n* (i.e., *p<n*). A p-value below 0.05 provides evidence against the assumption of multivariate normality.
+
+```{r}
+hw_result <- mvn(data = df, mvn_test = "hw")
+summary(hw_result, select = "mvn")
+```
+
+---
 
 ### Royston Test
 
@@ -71,7 +85,6 @@ summary(mardia_result, select = "mvn")
 ```
 
 ---
-
 
 ### Doornik–Hansen Test
 

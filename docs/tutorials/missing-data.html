@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>mvn-tests – MVN</title>
+<title>missing-data – MVN</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -181,18 +181,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="4">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#multivariate-normality-tests" id="toc-multivariate-normality-tests" class="nav-link active" data-scroll-target="#multivariate-normality-tests">Multivariate Normality Tests</a>
+  <li><a href="#handling-missing-data" id="toc-handling-missing-data" class="nav-link active" data-scroll-target="#handling-missing-data">Handling Missing Data</a>
   <ul>
-  <li><a href="#henzezirkler-test" id="toc-henzezirkler-test" class="nav-link" data-scroll-target="#henzezirkler-test">Henze–Zirkler Test</a></li>
-  <li><a href="#henzewagner-test" id="toc-henzewagner-test" class="nav-link" data-scroll-target="#henzewagner-test">Henze–Wagner Test</a></li>
-  <li><a href="#royston-test" id="toc-royston-test" class="nav-link" data-scroll-target="#royston-test">Royston Test</a></li>
-  <li><a href="#mardia-test" id="toc-mardia-test" class="nav-link" data-scroll-target="#mardia-test">Mardia Test</a></li>
-  <li><a href="#doornikhansen-test" id="toc-doornikhansen-test" class="nav-link" data-scroll-target="#doornikhansen-test">Doornik–Hansen Test</a></li>
-  <li><a href="#energy-test" id="toc-energy-test" class="nav-link" data-scroll-target="#energy-test">Energy Test</a></li>
+  <li><a href="#no-imputation" id="toc-no-imputation" class="nav-link" data-scroll-target="#no-imputation">No Imputation</a></li>
+  <li><a href="#mean-imputation" id="toc-mean-imputation" class="nav-link" data-scroll-target="#mean-imputation">Mean Imputation</a></li>
+  <li><a href="#median-imputation" id="toc-median-imputation" class="nav-link" data-scroll-target="#median-imputation">Median Imputation</a></li>
+  <li><a href="#multiple-imputation" id="toc-multiple-imputation" class="nav-link" data-scroll-target="#multiple-imputation">Multiple Imputation</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -204,47 +202,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="multivariate-normality-tests" class="level2">
-<h2 class="anchored" data-anchor-id="multivariate-normality-tests">Multivariate Normality Tests</h2>
-<p>Multivariate normality is a foundational assumption for methods such as MANOVA, principal component analysis, and linear discriminant analysis. In this tutorial, we’ll apply and interpret the five main tests implemented in the MVN package, guided by the recommendations of Korkmaz <em>et al.</em> (2014).</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The <code>mvn()</code> function also supports the use of bootstrap resampling for estimating p-values. By setting <code>bootstrap = TRUE</code>, you can obtain empirically derived p-values for the Mardia, Henze–Zirkler, Henze-Wagner, Royston and Doornik-Hansen tests. This is particularly useful when working with small sample sizes or when the assumptions underlying asymptotic distributions may not hold. The default setting is FALSE.</p>
-</div>
-</div>
+<section id="handling-missing-data" class="level2">
+<h2 class="anchored" data-anchor-id="handling-missing-data">Handling Missing Data</h2>
+<p>Handling missing values is a crucial step in data preprocessing, particularly when assessing multivariate normality. The <code>mvn()</code> function provides several options via the impute argument to handle missing data effectively. Supported methods include “<code>none</code>” (default), “<code>mean</code>”, “<code>median</code>”, and “<code>mice</code>” (Multiple Imputation by Chained Equations). Each approach affects how missing values are treated before running multivariate normality tests.</p>
 <hr>
 <section id="example-data" class="level3 unnumbered unlisted">
 <h3 class="unnumbered unlisted anchored" data-anchor-id="example-data">Example Data</h3>
-<p>We’ll use two numeric variables from the built-in <code>iris</code> dataset:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> iris[<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MVN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We begin by introducing missingness into the dataset:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># For reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a copy of the iris dataset with random missing values</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>iris_na <span class="ot">&lt;-</span> iris</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomly assign 10 NA values across the first 4 numeric columns</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  row <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(iris_na), <span class="dv">1</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  col <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">1</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  iris_na[row, col] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview modified data</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>iris_na[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  Sepal.Length Sepal.Width
-1          5.1         3.5
-2          4.9         3.0
-3          4.7         3.2
-4          4.6         3.1
-5          5.0         3.6
-6          5.4         3.9</code></pre>
+<pre><code>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+11          5.4         3.7          1.5         0.2  setosa
+12          4.8         3.4          1.6         0.2  setosa
+13          4.8         3.0          1.4         0.1  setosa
+14          4.3          NA           NA         0.1  setosa
+15          5.8         4.0          1.2         0.2  setosa
+16          5.7         4.4          1.5         0.4  setosa
+17          5.4         3.9          1.3         0.4  setosa
+18          5.1         3.5          1.4         0.3  setosa
+19          5.7         3.8          1.7         0.3  setosa
+20          5.1         3.8          1.5         0.3  setosa</code></pre>
 </div>
 </div>
+<p>Let’s explore how different imputation methods influence the results of the Henze-Zirkler multivariate normality test.</p>
 <hr>
 </section>
-<section id="henzezirkler-test" class="level3">
-<h3 class="anchored" data-anchor-id="henzezirkler-test">Henze–Zirkler Test</h3>
-<p>The Henze–Zirkler test is recommended for its balanced control of Type&nbsp;I error and good power properties under moderate sample sizes; a p-value below 0.05 suggests departure from multivariate normality based on a log-normalized distance metric.</p>
+<section id="no-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="no-imputation">No Imputation</h3>
+<p>Using <code>impute = "none"</code> will remove any rows containing missing values. A warning will notify how many rows were excluded.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>hz_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hz"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hz_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> iris_na, <span class="at">subset =</span> <span class="st">"Species"</span>, <span class="at">impute =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in mvn(data = iris_na, subset = "Species", impute = "none"): Missing
+values detected in 9 rows. These rows will be removed.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -252,18 +262,24 @@ Tip
 <pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           Test Statistic p.value     Method      MVN
-1 Henze-Zirkler     0.286   0.915 asymptotic ✓ Normal</code></pre>
+<pre><code>       Group          Test Statistic p.value      MVN
+1     setosa Henze-Zirkler     0.865   0.153 ✓ Normal
+2 versicolor Henze-Zirkler     0.858   0.168 ✓ Normal
+3  virginica Henze-Zirkler     0.744   0.541 ✓ Normal</code></pre>
 </div>
 </div>
+<p>In this case, 9 rows with missing values were removed. All three species groups passed the Henze-Zirkler test with p-values greater than 0.05, indicating multivariate normality was retained even after dropping incomplete cases.</p>
 <hr>
 </section>
-<section id="henzewagner-test" class="level3">
-<h3 class="anchored" data-anchor-id="henzewagner-test">Henze–Wagner Test</h3>
-<p>The Henze–Wagner test is a statistical method for assessing multivariate normality. It is based on a non-negative functional distance that quantifies the discrepancy between the empirical and theoretical characteristic functions. The test statistic follows an approximate asymptotic distribution under the null hypothesis of multivariate normality. It is particularly suited for datasets where the number of variables <em>p</em> is less than the number of observations <em>n</em> (i.e., <em>p&lt;n</em>). A p-value below 0.05 provides evidence against the assumption of multivariate normality.</p>
+<section id="mean-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="mean-imputation">Mean Imputation</h3>
+<p>Setting <code>impute = "mean"</code> replaces each missing value with the mean of its corresponding variable within the group.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hw_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"hw"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hw_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> iris_na, <span class="at">subset =</span> <span class="st">"Species"</span>, <span class="at">impute =</span> <span class="st">"mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Missing values detected. Applying 'mean' imputation method.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -271,18 +287,24 @@ Tip
 <pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>          Test Statistic p.value     Method      MVN
-1 Henze-Wagner     0.136   0.939 asymptotic ✓ Normal</code></pre>
+<pre><code>       Group          Test Statistic p.value          MVN
+1     setosa Henze-Zirkler     1.996  &lt;0.001 ✗ Not normal
+2 versicolor Henze-Zirkler     0.874   0.147     ✓ Normal
+3  virginica Henze-Zirkler     0.745   0.544     ✓ Normal</code></pre>
 </div>
 </div>
+<p>Mean imputation slightly altered the data. While versicolor and virginica remained normally distributed, the setosa group now failed the normality test (p &lt; 0.001), suggesting that mean imputation may introduce artifacts, especially in small or skewed groups.</p>
 <hr>
 </section>
-<section id="royston-test" class="level3">
-<h3 class="anchored" data-anchor-id="royston-test">Royston Test</h3>
-<p>The Royston test aggregates transformed univariate Shapiro–Wilk statistics into a joint chi‐square test and is noted for reliable performance in small-to-moderate samples.</p>
+<section id="median-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="median-imputation">Median Imputation</h3>
+<p>The “<code>median</code>” option replaces missing values with the median of each variable.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ro_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"royston"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ro_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> iris_na, <span class="at">subset =</span> <span class="st">"Species"</span>, <span class="at">impute =</span> <span class="st">"median"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Missing values detected. Applying 'median' imputation method.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -290,18 +312,24 @@ Tip
 <pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     Test Statistic p.value     Method      MVN
-1 Royston     2.698   0.245 asymptotic ✓ Normal</code></pre>
+<pre><code>       Group          Test Statistic p.value          MVN
+1     setosa Henze-Zirkler     2.098  &lt;0.001 ✗ Not normal
+2 versicolor Henze-Zirkler     0.909   0.091     ✓ Normal
+3  virginica Henze-Zirkler     0.745   0.543     ✓ Normal</code></pre>
 </div>
 </div>
+<p>Results are similar to mean imputation. Setosa again failed the test, while the other two groups maintained multivariate normality. Median imputation is more robust to outliers, but can still shift distribution characteristics depending on the missingness pattern.</p>
 <hr>
 </section>
-<section id="mardia-test" class="level3">
-<h3 class="anchored" data-anchor-id="mardia-test">Mardia Test</h3>
-<p>Mardia’s skewness and kurtosis measures provide insight into specific aspects of distributional shape; examining both skewness and kurtosis p-values helps diagnose the nature of non-normality, though neither may alone signal departure when sample size is limited.</p>
+<section id="multiple-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-imputation">Multiple Imputation</h3>
+<p>The “<code>mice</code>” method applies model-based multiple imputation using chained equations to estimate missing values.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>mardia_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"mardia"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mardia_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> iris_na, <span class="at">subset =</span> <span class="st">"Species"</span>, <span class="at">impute =</span> <span class="st">"mice"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Missing values detected. Applying 'mice' imputation method.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -309,69 +337,19 @@ Tip
 <pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>             Test Statistic p.value     Method      MVN
-1 Mardia Skewness     0.760   0.944 asymptotic ✓ Normal
-2 Mardia Kurtosis     0.093   0.926 asymptotic ✓ Normal</code></pre>
+<pre><code>       Group          Test Statistic p.value      MVN
+1     setosa Henze-Zirkler     0.927   0.069 ✓ Normal
+2 versicolor Henze-Zirkler     0.876   0.142 ✓ Normal
+3  virginica Henze-Zirkler     0.779   0.415 ✓ Normal</code></pre>
 </div>
 </div>
-<hr>
-</section>
-<section id="doornikhansen-test" class="level3">
-<h3 class="anchored" data-anchor-id="doornikhansen-test">Doornik–Hansen Test</h3>
-<p>The Doornik–Hansen approach applies transformations to approximate a chi‐square distribution of combined moment statistics.</p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>dh_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"doornik_hansen"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dh_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>            Test Statistic df p.value     Method          MVN
-1 Doornik-Hansen     11.57  4   0.021 asymptotic ✗ Not normal</code></pre>
-</div>
-</div>
-<hr>
-</section>
-<section id="energy-test" class="level3">
-<h3 class="anchored" data-anchor-id="energy-test">Energy Test</h3>
-<p>Based on a nonparametric energy distance metric, this test is sensitive to any general deviation from normality. It provides a robust alternative especially when data exhibit heavy tails or multimodality.</p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>energy_result <span class="ot">&lt;-</span> <span class="fu">mvn</span>(<span class="at">data =</span> df, <span class="at">mvn_test =</span> <span class="st">"energy"</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(energy_result, <span class="at">select =</span> <span class="st">"mvn"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Multivariate Normality Test Results ─────────────────────────────────────────</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         Test Statistic p.value    Method      MVN
-1 E-Statistic     0.527   0.783 bootstrap ✓ Normal</code></pre>
-</div>
-</div>
-<hr>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>No single test is universally best; Korkmaz <em>et al.</em> (2014) recommend combining multiple numerical tests with graphical diagnostics to make a more reliable decision on multivariate normality.</p>
-</div>
-</div>
+<p>This approach restored normality across all groups, with all p-values above 0.05. The MICE method generally preserves the structure of the data better than simple mean or median imputation and is recommended when the dataset contains substantial or non-random missingness.</p>
 <hr>
 </section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
-<p>Korkmaz&nbsp;S, Goksuluk&nbsp;D, Zararsiz&nbsp;G. MVN: An R Package for Assessing Multivariate Normality. The&nbsp;R&nbsp;Journal.&nbsp;2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf</p>
+<p>Korkmaz&nbsp;S, Goksuluk&nbsp;D, Zararsiz&nbsp;G. MVN: An R Package for Assessing Multivariate Normality. <em>The R Journal</em>. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf</p>
 
 
 </section>

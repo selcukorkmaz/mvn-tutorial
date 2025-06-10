@@ -1,0 +1,113 @@
+---
+title: ""
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: true
+    code-link: false
+    css: styles.css
+    page-layout: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = TRUE,
+  message = TRUE,
+  fig.align = "center"
+)
+```
+
+## Handling Missing Data
+
+Handling missing values is a crucial step in data preprocessing, particularly when assessing multivariate normality. The `mvn()` function provides several options via the impute argument to handle missing data effectively. Supported methods include "`none`" (default), "`mean`", "`median`", and "`mice`" (Multiple Imputation by Chained Equations). Each approach affects how missing values are treated before running multivariate normality tests.
+
+---
+
+### Example Data {.unnumbered .unlisted}
+
+```{r}
+# Load the package:
+library(MVN)
+```
+
+We begin by introducing missingness into the dataset:
+
+```{r}
+set.seed(123)  # For reproducibility
+
+# Create a copy of the iris dataset with random missing values
+iris_na <- iris
+
+# Randomly assign 10 NA values across the first 4 numeric columns
+for (i in 1:10) {
+  row <- sample(1:nrow(iris_na), 1)
+  col <- sample(1:4, 1)
+  iris_na[row, col] <- NA
+}
+
+# Preview modified data
+iris_na[11:20,]
+```
+
+Let’s explore how different imputation methods influence the results of the Henze-Zirkler multivariate normality test.
+
+---
+
+### No Imputation
+
+Using `impute = "none"` will remove any rows containing missing values. A warning will notify how many rows were excluded.
+
+```{r}
+res <- mvn(data = iris_na, subset = "Species", impute = "none")
+summary(res, select = "mvn")
+```
+
+In this case, 9 rows with missing values were removed. All three species groups passed the Henze-Zirkler test with p-values greater than 0.05, indicating multivariate normality was retained even after dropping incomplete cases.
+
+---
+
+### Mean Imputation
+
+Setting `impute = "mean"` replaces each missing value with the mean of its corresponding variable within the group.
+
+```{r}
+res <- mvn(data = iris_na, subset = "Species", impute = "mean")
+summary(res, select = "mvn")
+```
+
+Mean imputation slightly altered the data. While versicolor and virginica remained normally distributed, the setosa group now failed the normality test (p < 0.001), suggesting that mean imputation may introduce artifacts, especially in small or skewed groups.
+
+---
+
+### Median Imputation
+
+The "`median`" option replaces missing values with the median of each variable.
+
+```{r}
+res <- mvn(data = iris_na, subset = "Species", impute = "median")
+summary(res, select = "mvn")
+```
+
+Results are similar to mean imputation. Setosa again failed the test, while the other two groups maintained multivariate normality. Median imputation is more robust to outliers, but can still shift distribution characteristics depending on the missingness pattern.
+
+---
+
+### Multiple Imputation
+
+The "`mice`" method applies model-based multiple imputation using chained equations to estimate missing values.
+
+```{r}
+res <- mvn(data = iris_na, subset = "Species", impute = "mice")
+summary(res, select = "mvn")
+```
+
+This approach restored normality across all groups, with all p-values above 0.05. The MICE method generally preserves the structure of the data better than simple mean or median imputation and is recommended when the dataset contains substantial or non-random missingness.
+
+---
+
+
+## References
+
+Korkmaz S, Goksuluk D, Zararsiz G. MVN: An R Package for Assessing Multivariate Normality. *The R Journal*. 2014;6(2):151–162. URL: https://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf

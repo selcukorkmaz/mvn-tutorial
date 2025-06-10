@@ -4,7 +4,7 @@ format:
   html:
     toc: true
     toc-depth: 3
-    code-link: false
+    code-link: true
     css: styles.css
     page-layout: full
 ---
@@ -13,7 +13,7 @@ format:
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
+  message = TRUE,
   fig.align = "center"
 )
 ```

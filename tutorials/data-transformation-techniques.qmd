@@ -14,7 +14,7 @@ format:
 knitr::opts_chunk$set(
   echo    = TRUE,
   warning = FALSE,
-  message = FALSE,
+  message = TRUE,
   fig.align = "center"
 )
 ```
@@ -22,7 +22,8 @@ knitr::opts_chunk$set(
 
 
 ## Data Transformation Techniques  
-Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the `transform` argument, as well as optimal Box–Cox transformation.
+
+Data transformations can help correct skewness and stabilize variance. MVN supports simple transforms (log, square root, square) via the transform argument, as well as optimal Box–Cox transformation. Additionally, MVN provides support for a broader class of power transformations through the power_family argument. These include the standard Box–Cox, its extension that accommodates non-positive values (Box–Cox with negatives allowed), and the Yeo–Johnson transformation. Each method automatically estimates optimal lambda values for transformation and can be used in conjunction with multivariate normality tests to evaluate improvements in distributional properties.
 
 ---
 
@@ -43,61 +44,107 @@ The untransformed data are marginally on the threshold of normality (p = 0.05), 
 
 ## 1. Basic Transformations
 
-Use the `transform` parameter in `mvn()` to apply:
+Basic transformations can be used to address issues like skewness and heteroscedasticity before assessing multivariate normality. The `mvn()` function allows simple transformations using the transform argument. Supported options include natural logarithm ("log"), square root ("sqrt"), and squaring the values ("square"). These methods are quick to apply and can help improve the suitability of data for multivariate analysis, although their effectiveness may vary depending on the distribution of each variable.
 
-- **"log"** (natural log)
-- **"sqrt"** (square root)
-- **"square"** (power of 2)
+### 1.1 Log Transformation
+
+The log transformation applies the natural logarithm to all variables, which is especially useful when dealing with right-skewed data. 
 
 ```{r}
-# Log-transform
 res_log <- mvn(data = df, mvn_test = "hz", transform = "log")
 summary(res_log, select = "mvn")
 ```
-The log transformation improves normality (p = 0.379), suggesting data are now consistent with a multivariate normal distribution.
+In this case, applying the log transformation yields a p-value of 0.379 from the Henze-Zirkler test, indicating that the transformed data conform well to multivariate normality.
+
+
+### 1.2 Square-root Transformation
+
+The square-root transformation offers a less aggressive correction than the log and is suitable for moderately skewed data. 
 
 ```{r}
-# Square-root transform
 res_sqrt <- mvn(data = df, mvn_test = "hz", transform = "sqrt")
 summary(res_sqrt, select = "mvn")
 ```
 
-The square-root transformation also corrects skewness, producing p = 0.253 and acceptance of normality.
+After applying this transformation, the p-value is 0.253, which still supports the assumption of multivariate normality. This method retains more of the original data structure while improving distributional properties.
 
+### 1.3 Square Transformation
+
+The square transformation raises each value to the power of two. While mathematically valid, this operation tends to amplify skewness and outliers. 
 
 ```{r}
-# Square transform
 res_sq <- mvn(data = df, mvn_test = "hz", transform = "square")
 summary(res_sq, select = "mvn")
 ```
 
-Squaring amplifies deviations and results in clear non-normality (p < 0.001), so this transform is not recommended.
+In the given example, squaring the data results in a p-value less than 0.001, indicating strong deviation from normality. As such, squaring is generally not advisable when the goal is to achieve or maintain multivariate normality.
 
 ---
 
-## 2. Box–Cox Transformation
+## 2. Power Transformation
 
+Power transformations are commonly applied in multivariate normality testing to stabilize variance and make the data more normally distributed. The `mvn()` function supports various power transformation families, allowing automatic selection of optimal lambda values to transform each variable accordingly. Below are three supported methods—Box-Cox, Box-Cox with negatives allowed, and Yeo-Johnson—each applied with Henze-Zirkler's test to assess multivariate normality.
 
-Enable Box–Cox with optimal lambda estimation using:
+### 2.1. Box-Cox Transformation
+
+The Box–Cox transformation is applied first. It estimates the optimal lambda values to transform the variables, assuming all data are strictly positive.
 
 ```{r}
 res_bc_sum <- mvn(
   data              = df,
   mvn_test          = "hz",
-  box_cox_transform = TRUE
+  power_family = "bcPower"
 )
 summary(res_bc_sum, select = "mvn")
 ```
 
-The Box–Cox transformation yields p = 0.332, indicating a good fit to multivariate normality with data-driven lambda values applied.
+After transformation, Henze-Zirkler’s test yields a p-value of 0.332, suggesting no evidence against multivariate normality. 
 
-Here are the optimal lambda values used for transformation:
+The optimal lambda values used in the transformation can be accessed for further inspection.
 
 ```{r}
-res_bc_sum$box_cox_lambda
+res_bc_sum$power_transform_lambda
 ```
 
 ---
+
+
+### 2.2. Box-Cox with Negatives Allowed
+
+The Box–Cox with negatives allowed transformation extends the original Box-Cox method by enabling transformations on variables that may include non-positive values.
+
+```{r}
+res_bc_sum <- mvn(
+  data              = df,
+  mvn_test          = "hz",
+  power_family = "bcnPower"
+)
+summary(res_bc_sum, select = "mvn")
+```
+
+When applied to the same data, it results in a p-value of 0.334, similarly suggesting a good fit to multivariate normality. Like the standard Box-Cox, it also automatically estimates and applies suitable lambda values.
+
+
+---
+
+
+### 2.3. Yeo-Johnson Transformation
+
+The Yeo-Johnson transformation is suitable for both positive and negative data and does not require shifting the variable range.
+```{r}
+res_bc_sum <- mvn(
+  data              = df,
+  mvn_test          = "hz",
+  power_family = "yjPower"
+)
+summary(res_bc_sum, select = "mvn")
+```
+
+In this example, however, it yields a p-value less than 0.001, indicating strong evidence against multivariate normality even after transformation. This suggests that, for this specific dataset, Yeo-Johnson may not be as effective as the Box-Cox-based alternatives in achieving multivariate normality.
+
+
+---
+
 
 ## References
 
